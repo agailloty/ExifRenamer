@@ -33,5 +33,10 @@
             </ScrollViewer>
         </StackPanel>
         <Button Grid.Column="0" Grid.Row="3" Content="Add folder" Command="{Binding  AddFolderCommand}" />
+        
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
+            <Label FontSize="25" Content="Total images : " />
+            <TextBlock FontSize="25" Text="{Binding TotalImagesCount}" />
+        </StackPanel>
     </Grid>
 </Window>

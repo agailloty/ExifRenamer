@@ -11,11 +11,13 @@ namespace ExifRenamer.ViewModels
     public partial class MainWindowViewModel : ViewModelBase
     {
         private readonly IDialogService _dialogService;
+        private FolderService _folderService;
         private const byte maxFolders = 10;
 
         public MainWindowViewModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
+            _folderService = new FolderService();
             AddFolderCommand = new RelayCommand(async () => await AddFolder(), CanAddFolder);
             PathFolders = new ObservableCollection<DirectoryInfo>();
             RemoveFolderCommand = new RelayCommand<DirectoryInfo>(RemoveFolder);
@@ -40,6 +42,7 @@ namespace ExifRenamer.ViewModels
             if (selectedPath != null)
             {
                 PathFolders.Add(new DirectoryInfo(selectedPath));
+                TotalImagesCount = GetTotalImagesCount();
             }
         }
 
@@ -47,5 +50,17 @@ namespace ExifRenamer.ViewModels
         public ICommand AddFolderCommand { get; }
 
         public ObservableCollection<DirectoryInfo> PathFolders { get; set; }
+        
+        public int GetTotalImagesCount()
+        {
+            int totalImages = 0;
+            foreach (var folder in PathFolders)
+            {
+                totalImages += _folderService.GetImageFilesCount(folder.FullName);
+            }
+            return totalImages;
+        }
+        
+        public int TotalImagesCount { get; set; }
     }
 }
