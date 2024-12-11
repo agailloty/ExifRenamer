@@ -7,30 +7,31 @@
         x:Class="ExifRenamer.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-		WindowStartupLocation="CenterScreen"
-		CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False"
         Title="Exif Renamer">
 
-	<Design.DataContext>
-		<!-- This only sets the DataContext for the previewer in an IDE,
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-		<vm:MainWindowViewModel/>
-	</Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
 
-	<Grid>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="Auto"/>
-			<ColumnDefinition Width="*"/>
-		</Grid.ColumnDefinitions>
-		<Grid.RowDefinitions>
-			<RowDefinition />
-			<RowDefinition />
-			<RowDefinition />
-			<RowDefinition />
-		</Grid.RowDefinitions>
-
-		<TextBlock Grid.Column="0" Grid.Row="0" Text="Source Directory:" VerticalAlignment="Center"/>
-		
-	</Grid>
-
+    <Grid Margin="5" ColumnDefinitions="*,2*" RowDefinitions="*,2*,*,*">
+        <StackPanel Grid.RowSpan="2" Grid.Row="1" Grid.Column="0">
+            <Label Content="Choose folders :" />
+            <ScrollViewer MaxHeight="350" HorizontalScrollBarVisibility="Disabled">
+                <ListBox ItemsSource="{Binding PathFolders}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                                <Grid ToolTip.Tip="{Binding FullName}">
+                                    <TextBlock ToolTip.Tip="{Binding FullName}" Text="{Binding Name}"/>
+                                </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </ScrollViewer>
+        </StackPanel>
+        <Button Grid.Column="0" Grid.Row="3" Content="Add folder" Command="{Binding  AddFolderCommand}" />
+    </Grid>
 </Window>
