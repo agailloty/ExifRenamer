@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace ExifRenamer.Services
+namespace ExifRenamer.Services;
+
+public interface IDialogService
 {
-    public interface IDialogService
-    {
-        Task<string?> ShowFolderBrowserDialogAsync();
-    }
+    Task<string?> ShowFolderBrowserDialogAsync();
 }

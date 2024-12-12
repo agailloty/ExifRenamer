@@ -15,9 +15,9 @@
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
+        <vm:MainWindowViewModel />
     </Design.DataContext>
-    
+
     <Window.Styles>
         <Style Selector="ListBoxItem">
             <Setter Property="DataContext" Value="{Binding}" />
@@ -31,27 +31,28 @@
                 <ListBox ItemsSource="{Binding PathFolders}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                                <StackPanel Margin="1">
-                                    <Grid>
-                                        <TextBlock ToolTip.Tip="{Binding FullName}" Text="{Binding Name}"/>
-                                        <Button Command="{Binding $parent[views:MainWindow].ViewModel.RemoveFolderCommand}"
-                                                CommandParameter="{Binding}"
-                                                VerticalAlignment="Top" HorizontalAlignment="Right">
-                                            <Button.ContentTemplate>
-                                                <DataTemplate>
-                                                    <Image Margin="0" Width="15" Height="15" VerticalAlignment="Top" HorizontalAlignment="Right" Source="/Assets/deletebtn.png"/>
-                                                </DataTemplate>
-                                            </Button.ContentTemplate>
-                                        </Button>
-                                    </Grid>
-                                </StackPanel>
+                            <StackPanel Margin="1">
+                                <Grid>
+                                    <TextBlock ToolTip.Tip="{Binding FullName}" Text="{Binding Name}" />
+                                    <Button Command="{Binding $parent[views:MainWindow].ViewModel.RemoveFolderCommand}"
+                                            CommandParameter="{Binding}"
+                                            VerticalAlignment="Top" HorizontalAlignment="Right">
+                                        <Button.ContentTemplate>
+                                            <DataTemplate>
+                                                <Image Margin="0" Width="15" Height="15" VerticalAlignment="Top"
+                                                       HorizontalAlignment="Right" Source="/Assets/deletebtn.png" />
+                                            </DataTemplate>
+                                        </Button.ContentTemplate>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
             </ScrollViewer>
         </StackPanel>
         <Button Grid.Column="0" Grid.Row="2" Content="Add folder" Command="{Binding  AddFolderCommand}" />
-        
+
         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Grid.Column="1" Grid.Row="3">
             <TextBlock Text="Total images : " />
             <TextBlock Text="{Binding TotalImagesCount}" />
