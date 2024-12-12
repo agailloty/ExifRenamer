@@ -17,7 +17,7 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid Margin="5" ColumnDefinitions="*,2*" RowDefinitions="*,2*,*,*">
+    <Grid Margin="5" ColumnDefinitions="*,2*" RowDefinitions="*,5*,*,Auto">
         <StackPanel Grid.RowSpan="2" Grid.Row="1" Grid.Column="0">
             <Label Content="Choose folders :" />
             <ScrollViewer MaxHeight="350" HorizontalScrollBarVisibility="Disabled">
@@ -32,11 +32,11 @@
                 </ListBox>
             </ScrollViewer>
         </StackPanel>
-        <Button Grid.Column="0" Grid.Row="3" Content="Add folder" Command="{Binding  AddFolderCommand}" />
+        <Button Grid.Column="0" Grid.Row="2" Content="Add folder" Command="{Binding  AddFolderCommand}" />
         
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
-            <Label FontSize="25" Content="Total images : " />
-            <TextBlock FontSize="25" Text="{Binding TotalImagesCount, UpdateSourceTrigger=PropertyChanged}" />
+        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Grid.Column="1" Grid.Row="3">
+            <TextBlock Text="Total images : " />
+            <TextBlock Text="{Binding TotalImagesCount}" />
         </StackPanel>
     </Grid>
 </Window>

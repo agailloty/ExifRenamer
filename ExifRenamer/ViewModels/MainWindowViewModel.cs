@@ -57,8 +57,8 @@ namespace ExifRenamer.ViewModels
         public ICommand AddFolderCommand { get; }
 
         public ObservableCollection<DirectoryInfo> PathFolders { get; set; }
-        
-        public int GetTotalImagesCount()
+
+        private int GetTotalImagesCount()
         {
             int totalImages = 0;
             foreach (var folder in PathFolders)
