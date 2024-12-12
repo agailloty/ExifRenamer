@@ -23,13 +23,8 @@ namespace ExifRenamer.ViewModels
             _folderService = new FolderService();
             AddFolderCommand = new RelayCommand(async () => await AddFolder(), CanAddFolder);
             PathFolders = new ObservableCollection<DirectoryInfo>();
-            RemoveFolderCommand = new RelayCommand<DirectoryInfo>(RemoveFolder, CanRemoveFolder);
+            RemoveFolderCommand = new RelayCommand<DirectoryInfo>(RemoveFolder);
             
-        }
-
-        private bool CanRemoveFolder(DirectoryInfo? obj)
-        {
-            return true;
         }
 
         private void RemoveFolder(DirectoryInfo? folder)
@@ -37,6 +32,7 @@ namespace ExifRenamer.ViewModels
             if (folder != null && PathFolders.Contains(folder))
             {
                 PathFolders.Remove(folder);
+                TotalImagesCount = GetTotalImagesCount();
             }
         }
 
