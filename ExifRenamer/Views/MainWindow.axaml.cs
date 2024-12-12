@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using ExifRenamer.Services;
 using ExifRenamer.ViewModels;
 
@@ -8,7 +9,6 @@ namespace ExifRenamer.Views
     {
         public MainWindow()
         {
-            InitializeComponent();
             // Get screen information
             var screen = Screens.Primary;
             // Set width and height as percentages of the screen
@@ -18,5 +18,12 @@ namespace ExifRenamer.Views
             var dialogService = new DialogService(this);
             DataContext = new MainWindowViewModel(dialogService);
         }
+        
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
+        
+        public MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext;
     }
 }
