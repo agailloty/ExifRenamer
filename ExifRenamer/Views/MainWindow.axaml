@@ -36,7 +36,7 @@
         
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
             <Label FontSize="25" Content="Total images : " />
-            <TextBlock FontSize="25" Text="{Binding TotalImagesCount}" />
+            <TextBlock FontSize="25" Text="{Binding TotalImagesCount, UpdateSourceTrigger=PropertyChanged}" />
         </StackPanel>
     </Grid>
 </Window>

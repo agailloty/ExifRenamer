@@ -3,8 +3,10 @@ using ExifRenamer.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace ExifRenamer.ViewModels
 {
@@ -12,6 +14,7 @@ namespace ExifRenamer.ViewModels
     {
         private readonly IDialogService _dialogService;
         private FolderService _folderService;
+        private int _totalImagesCount;
         private const byte maxFolders = 10;
 
         public MainWindowViewModel(IDialogService dialogService)
@@ -41,8 +44,12 @@ namespace ExifRenamer.ViewModels
             var selectedPath = await _dialogService.ShowFolderBrowserDialogAsync();
             if (selectedPath != null)
             {
-                PathFolders.Add(new DirectoryInfo(selectedPath));
-                TotalImagesCount = GetTotalImagesCount();
+                var directory = new DirectoryInfo(selectedPath);
+                if (PathFolders.All(folder => folder.FullName != directory.FullName))
+                {
+                    PathFolders.Add(new DirectoryInfo(selectedPath));
+                    TotalImagesCount = GetTotalImagesCount();
+                }
             }
         }
 
@@ -60,7 +67,11 @@ namespace ExifRenamer.ViewModels
             }
             return totalImages;
         }
-        
-        public int TotalImagesCount { get; set; }
+
+        public int TotalImagesCount
+        {
+            get => _totalImagesCount;
+            set => SetProperty(ref _totalImagesCount, value);
+        }
     }
 }
