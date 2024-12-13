@@ -14,6 +14,7 @@ public class MainWindowViewModel : ViewModelBase
 {
     private readonly IDialogService _dialogService;
     private readonly FolderService _folderService;
+    private readonly ExifService _exifService;
     private int _totalImagesCount;
 
     public MainWindowViewModel(IDialogService dialogService)
@@ -23,7 +24,8 @@ public class MainWindowViewModel : ViewModelBase
         AddFolderCommand = new RelayCommand(async () => await AddFolder());
         PathFolders = new ObservableCollection<DirectoryInfo>();
         RemoveFolderCommand = new RelayCommand<DirectoryInfo>(RemoveFolder);
-        SelectExifMetadataCommand = new RelayCommand(async () => await _dialogService.ShowExifMetadataDialogAsync());
+        SelectExifMetadataCommand = new RelayCommand(OpenExifMetadataDialog);
+        _exifService = new ExifService();
     }
 
     public ICommand RemoveFolderCommand { get; }
@@ -70,5 +72,19 @@ public class MainWindowViewModel : ViewModelBase
         var totalImages = 0;
         foreach (var folder in PathFolders) totalImages += _folderService.GetImageFilesCount(folder.FullName);
         return totalImages;
+    }
+    
+    private async void OpenExifMetadataDialog()
+    {
+        if (PathFolders.Any())
+        {
+            string path = PathFolders.First().FullName;
+            var files = _folderService.GetImageFiles(path);
+            if (files.Any())
+            {
+                var exifMetadata = _exifService.ExtractExifData(files.First());
+                await _dialogService.ShowExifMetadataDialogAsync();
+            }
+        }
     }
 }
