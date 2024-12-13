@@ -1,9 +1,11 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
+using ExifRenamer.Models;
 using ExifRenamer.Services;
 
 namespace ExifRenamer.ViewModels;
@@ -21,6 +23,7 @@ public class MainWindowViewModel : ViewModelBase
         AddFolderCommand = new RelayCommand(async () => await AddFolder());
         PathFolders = new ObservableCollection<DirectoryInfo>();
         RemoveFolderCommand = new RelayCommand<DirectoryInfo>(RemoveFolder);
+        SelectExifMetadataCommand = new RelayCommand(async () => await _dialogService.ShowExifMetadataDialogAsync());
     }
 
     public ICommand RemoveFolderCommand { get; }
@@ -33,6 +36,10 @@ public class MainWindowViewModel : ViewModelBase
         get => _totalImagesCount;
         set => SetProperty(ref _totalImagesCount, value);
     }
+
+    public ICommand SelectExifMetadataCommand { get; }
+    public List<ExifModel> ExifMetadata { get; }
+    public ICommand OKCommand { get; }
 
     private void RemoveFolder(DirectoryInfo? folder)
     {

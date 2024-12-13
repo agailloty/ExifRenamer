@@ -23,7 +23,7 @@ public class App : Application
             // Without this line you will get duplicate validations from both Avalonia and CT
             BindingPlugins.DataValidators.RemoveAt(0);
             desktop.MainWindow = new MainWindow();
-            desktop.MainWindow.DataContext = new MainWindowViewModel(new DialogService(desktop.MainWindow));
+            desktop.MainWindow.DataContext = new MainWindowViewModel(new DialogService(desktop.MainWindow as MainWindow));
         }
 
         base.OnFrameworkInitializationCompleted();
