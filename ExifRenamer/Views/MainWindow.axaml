@@ -61,8 +61,20 @@
         
         <StackPanel Grid.Column="1" Grid.Row="0">
             <TextBlock HorizontalAlignment="Center" Text="Renaming pattern" FontSize="20" />
-            <Button Content="Select Exif metadata" Command="{Binding SelectExifMetadataCommand}" />        
         </StackPanel>
+        <Grid Grid.Column="1" Grid.Row="1" ColumnDefinitions="2* 1*">
+            <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding BuiltInRenamerPatterns}" Grid.Column="0"
+                      SelectedItem="{Binding SelectedBuiltInRenamerPattern, Mode=TwoWay}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock ToolTip.Tip="{Binding Description}" Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button IsVisible="{Binding IsSelectExifVisible}" Grid.Column="1" Grid.Row="0" Content="Select Exif metadata" Command="{Binding SelectExifMetadataCommand}" />   
+        </Grid>
+
+                  
         
         <Grid Margin="0" IsVisible="False" x:Name="MainWindowOverlay" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="4"/>
         </Grid>

@@ -16,6 +16,9 @@ public class MainWindowViewModel : ViewModelBase
     private readonly FolderService _folderService;
     private readonly ExifService _exifService;
     private int _totalImagesCount;
+    private readonly RenamerService _renamerService;
+    private bool _isSelectExifVisible;
+    private RenamerPatternModel _selectedBuiltInRenamerPattern;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -26,6 +29,8 @@ public class MainWindowViewModel : ViewModelBase
         RemoveFolderCommand = new RelayCommand<DirectoryInfo>(RemoveFolder);
         SelectExifMetadataCommand = new RelayCommand(OpenExifMetadataDialog);
         _exifService = new ExifService();
+        _renamerService = new RenamerService();
+        BuiltInRenamerPatterns = _renamerService.GetBuiltInRenamerPatterns().AsReadOnly();
     }
 
     public ICommand RemoveFolderCommand { get; }
@@ -42,6 +47,25 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand SelectExifMetadataCommand { get; }
     public List<ExifModel> ExifMetadata { get; }
     public ICommand OKCommand { get; }
+    public ReadOnlyCollection<RenamerPatternModel> BuiltInRenamerPatterns { get; }
+
+    public RenamerPatternModel SelectedBuiltInRenamerPattern
+    {
+        get => _selectedBuiltInRenamerPattern;
+        set
+        {
+            if (SetProperty(ref _selectedBuiltInRenamerPattern, value))
+            {
+                IsSelectExifVisible = value.Name == "Custom";
+            }
+        }
+    }
+
+    public bool IsSelectExifVisible
+    {
+        get => _isSelectExifVisible;
+        set => SetProperty(ref _isSelectExifVisible, value);
+    }
 
     private void RemoveFolder(DirectoryInfo? folder)
     {
