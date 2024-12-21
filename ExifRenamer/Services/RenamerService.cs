@@ -40,9 +40,9 @@ public class RenamerService
         }
     }
     
-    public string[] GetRenamePreviews(string[] filenames, RenamerPatternModel pattern)
+    public PreviewModel[] GetRenamePreviews(string[] filenames, RenamerPatternModel pattern)
     {
-        var previews = new string[filenames.Length];
+        var previews = new PreviewModel[filenames.Length];
         for (var i = 0; i < filenames.Length; i++)
         {
             previews[i] = GetRenamePreview(filenames[i], pattern);
@@ -50,11 +50,11 @@ public class RenamerService
         return previews;
     }
 
-    private string GetRenamePreview(string filename, RenamerPatternModel pattern)
+    private PreviewModel GetRenamePreview(string filename, RenamerPatternModel pattern)
     {
         var file = new FileInfo(filename);
         var date = file.CreationTime;
-        return date.ToLongDateString();
+        return new PreviewModel {OldFilename = file.Name, NewFilename = date.ToLongDateString()};
     }
 }
 

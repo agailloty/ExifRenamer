@@ -19,7 +19,7 @@ public class MainWindowViewModel : ViewModelBase
     private readonly RenamerService _renamerService;
     private bool _isSelectExifVisible;
     private RenamerPatternModel _selectedBuiltInRenamerPattern;
-    private ObservableCollection<string> _renamePreviews;
+    private ObservableCollection<PreviewModel> _renamePreviews;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -68,7 +68,7 @@ public class MainWindowViewModel : ViewModelBase
         set => SetProperty(ref _isSelectExifVisible, value);
     }
 
-    public ObservableCollection<string> RenamePreviews
+    public ObservableCollection<PreviewModel> RenamePreviews
     {
         get => _renamePreviews;
         set => SetProperty(ref _renamePreviews, value);
@@ -78,7 +78,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         if (folder == null || !PathFolders.Contains(folder)) return;
         PathFolders.Remove(folder);
-        TotalImagesCount = GetImagePreviews().Length;
+        UpdateImageCount();
     }
     
 
@@ -91,21 +91,21 @@ public class MainWindowViewModel : ViewModelBase
             if (PathFolders.All(folder => folder.FullName != directory.FullName))
             {
                 PathFolders.Add(new DirectoryInfo(selectedPath));
-                RenamePreviews = new ObservableCollection<string>(GetImagePreviews());
-                TotalImagesCount = GetImagePreviews().Length;
+                UpdateImageCount();
             }
         }
     }
 
-    private string[] GetImagePreviews()
+    private PreviewModel[] GetImagePreviews()
     {
-        var totalImages = 0;
         List<string[]> previews = new();
         foreach (var folder in PathFolders)
         {
             previews.Add(_folderService.GetImageFiles(folder.FullName));
         }
-        return previews.SelectMany(preview => preview).ToArray();
+        
+        var files = previews.SelectMany(preview => preview).ToArray();
+        return _renamerService.GetRenamePreviews(files, SelectedBuiltInRenamerPattern);
     }
     
     private async void OpenExifMetadataDialog()
@@ -118,5 +118,11 @@ public class MainWindowViewModel : ViewModelBase
             var exifMetadata = _exifService.ExtractExifData(files.First());
             await _dialogService.ShowExifMetadataDialogAsync();
         }
+    }
+    
+    private void UpdateImageCount()
+    {
+        RenamePreviews = new ObservableCollection<PreviewModel>(GetImagePreviews());
+        TotalImagesCount = GetImagePreviews().Length;
     }
 }
