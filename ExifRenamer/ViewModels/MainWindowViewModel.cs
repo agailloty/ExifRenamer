@@ -19,6 +19,7 @@ public class MainWindowViewModel : ViewModelBase
     private readonly RenamerService _renamerService;
     private bool _isSelectExifVisible;
     private RenamerPatternModel _selectedBuiltInRenamerPattern;
+    private ObservableCollection<string> _renamePreviews;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -67,13 +68,17 @@ public class MainWindowViewModel : ViewModelBase
         set => SetProperty(ref _isSelectExifVisible, value);
     }
 
+    public ObservableCollection<string> RenamePreviews
+    {
+        get => _renamePreviews;
+        set => SetProperty(ref _renamePreviews, value);
+    }
+
     private void RemoveFolder(DirectoryInfo? folder)
     {
-        if (folder != null && PathFolders.Contains(folder))
-        {
-            PathFolders.Remove(folder);
-            TotalImagesCount = GetTotalImagesCount();
-        }
+        if (folder == null || !PathFolders.Contains(folder)) return;
+        PathFolders.Remove(folder);
+        TotalImagesCount = GetImagePreviews().Length;
     }
     
 
@@ -86,29 +91,32 @@ public class MainWindowViewModel : ViewModelBase
             if (PathFolders.All(folder => folder.FullName != directory.FullName))
             {
                 PathFolders.Add(new DirectoryInfo(selectedPath));
-                TotalImagesCount = GetTotalImagesCount();
+                RenamePreviews = new ObservableCollection<string>(GetImagePreviews());
+                TotalImagesCount = GetImagePreviews().Length;
             }
         }
     }
 
-    private int GetTotalImagesCount()
+    private string[] GetImagePreviews()
     {
         var totalImages = 0;
-        foreach (var folder in PathFolders) totalImages += _folderService.GetImageFilesCount(folder.FullName);
-        return totalImages;
+        List<string[]> previews = new();
+        foreach (var folder in PathFolders)
+        {
+            previews.Add(_folderService.GetImageFiles(folder.FullName));
+        }
+        return previews.SelectMany(preview => preview).ToArray();
     }
     
     private async void OpenExifMetadataDialog()
     {
-        if (PathFolders.Any())
+        if (!PathFolders.Any()) return;
+        string path = PathFolders.First().FullName;
+        var files = _folderService.GetImageFiles(path);
+        if (files.Any())
         {
-            string path = PathFolders.First().FullName;
-            var files = _folderService.GetImageFiles(path);
-            if (files.Any())
-            {
-                var exifMetadata = _exifService.ExtractExifData(files.First());
-                await _dialogService.ShowExifMetadataDialogAsync();
-            }
+            var exifMetadata = _exifService.ExtractExifData(files.First());
+            await _dialogService.ShowExifMetadataDialogAsync();
         }
     }
 }

@@ -39,5 +39,22 @@ public class RenamerService
             RenameFile(filename, date.ToLongDateString());
         }
     }
+    
+    public string[] GetRenamePreviews(string[] filenames, RenamerPatternModel pattern)
+    {
+        var previews = new string[filenames.Length];
+        for (var i = 0; i < filenames.Length; i++)
+        {
+            previews[i] = GetRenamePreview(filenames[i], pattern);
+        }
+        return previews;
+    }
+
+    private string GetRenamePreview(string filename, RenamerPatternModel pattern)
+    {
+        var file = new FileInfo(filename);
+        var date = file.CreationTime;
+        return date.ToLongDateString();
+    }
 }
 
