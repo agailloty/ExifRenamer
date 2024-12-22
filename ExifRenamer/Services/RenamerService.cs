@@ -44,13 +44,13 @@ public class RenamerService
     {
         var previews = new PreviewModel[filenames.Length];
         for (var i = 0; i < filenames.Length; i++) previews[i] = GetRenamePreview(filenames[i], pattern);
+         previews = MakeUniqueFilenames(previews);
         return previews;
     }
 
     private PreviewModel GetRenamePreview(string filename, RenamerPatternModel pattern)
     {
         var file = new FileInfo(filename);
-        var date = file.CreationTime;
         var extension = file.Extension;
         var newFilename = GetFormattedDate(file, pattern);
         var folderPath = file.Directory.FullName;
@@ -71,5 +71,23 @@ public class RenamerService
             "Date Time (YY-Monthname-DD_HHMMSS)" => date.ToString("yy-MMMM-dd_HHmmss"),
             _ => date.ToString("yyyy-MM-dd")
         };
+    }
+    
+    private PreviewModel[] MakeUniqueFilenames(PreviewModel[] previews)
+    {
+        var uniqueFilenames = new List<string>();
+        foreach (var preview in previews)
+        {
+            var newName = preview.NewFilename;
+            var i = 1;
+            while (uniqueFilenames.Contains(newName))
+            {
+                newName = $"{preview.NewFilename}_{i}";
+                i++;
+            }
+            uniqueFilenames.Add(newName);
+            preview.NewFilename = newName;
+        }
+        return previews;
     }
 }

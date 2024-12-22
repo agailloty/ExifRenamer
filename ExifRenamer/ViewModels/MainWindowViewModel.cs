@@ -135,13 +135,12 @@ public class MainWindowViewModel : ViewModelBase
     private void RenameImages()
     {
         var previews = RenamePreviews;
-        long sequence = 0;
         foreach (var preview in previews)
         {
-            sequence++;
             var oldPath = Path.Join(preview.FolderPath, preview.OldFilename);
-            var newPath = Path.Join(preview.FolderPath, $"{preview.NewFilename}_{sequence.ToString()}.{preview.Extension}");
+            var newPath = Path.Join(preview.FolderPath, $"{preview.NewFilename}{preview.Extension}");
             File.Move(oldPath, newPath, overwrite:true);
         }
+        UpdateImageCount();
     }
 }
