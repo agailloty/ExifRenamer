@@ -20,6 +20,7 @@ public class MainWindowViewModel : ViewModelBase
     private ObservableCollection<PreviewModel> _renamePreviews;
     private RenamerPatternModel _selectedBuiltInRenamerPattern;
     private int _totalImagesCount;
+    private bool _isRenameEnabled;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -33,6 +34,7 @@ public class MainWindowViewModel : ViewModelBase
         _renamerService = new RenamerService();
         BuiltInRenamerPatterns = _renamerService.GetBuiltInRenamerPatterns().AsReadOnly();
         SelectedBuiltInRenamerPattern = BuiltInRenamerPatterns.First();
+        RenameCommand = new RelayCommand(RenameImages);
     }
 
     public ICommand RemoveFolderCommand { get; }
@@ -70,6 +72,14 @@ public class MainWindowViewModel : ViewModelBase
     {
         get => _renamePreviews;
         set => SetProperty(ref _renamePreviews, value);
+    }
+
+    public ICommand RenameCommand { get; }
+
+    public bool IsRenameEnabled
+    {
+        get => _isRenameEnabled;
+        set => SetProperty(ref _isRenameEnabled, value);
     }
 
     private void RemoveFolder(DirectoryInfo? folder)
@@ -119,5 +129,19 @@ public class MainWindowViewModel : ViewModelBase
     {
         RenamePreviews = new ObservableCollection<PreviewModel>(GetImagePreviews());
         TotalImagesCount = GetImagePreviews().Length;
+        IsRenameEnabled = TotalImagesCount > 0;
+    }
+    
+    private void RenameImages()
+    {
+        var previews = RenamePreviews;
+        long sequence = 0;
+        foreach (var preview in previews)
+        {
+            sequence++;
+            var oldPath = Path.Join(preview.FolderPath, preview.OldFilename);
+            var newPath = Path.Join(preview.FolderPath, $"{preview.NewFilename}_{sequence.ToString()}.{preview.Extension}");
+            File.Move(oldPath, newPath, overwrite:true);
+        }
     }
 }

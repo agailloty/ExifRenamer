@@ -51,8 +51,10 @@ public class RenamerService
     {
         var file = new FileInfo(filename);
         var date = file.CreationTime;
+        var extension = file.Extension;
         var newFilename = GetFormattedDate(file, pattern);
-        return new PreviewModel { OldFilename = file.Name, NewFilename = newFilename };
+        var folderPath = file.Directory.FullName;
+        return new PreviewModel { OldFilename = file.Name, NewFilename = newFilename, FolderPath = folderPath, Extension = extension };
     }
 
     private string GetFormattedDate(FileInfo file, RenamerPatternModel pattern)

@@ -26,7 +26,7 @@
 
     <Grid Margin="5" ColumnDefinitions="*,2*" RowDefinitions="*,5*,*,Auto">
         <StackPanel Margin="5" Grid.RowSpan="2" Grid.Row="1" Grid.Column="0">
-            <Label Margin="0 0 0 10 " FontWeight="ExtraBold" Content="Add folders" />
+            <Label Margin="0 0 0 10 " FontWeight="ExtraBold" Content="Add folders" FontSize="20" />
             <TextBlock TextWrapping="Wrap" Margin="0 0 0 10 " Text="Add the folders that contains your photos" />
             <ScrollViewer MaxHeight="350" HorizontalScrollBarVisibility="Disabled">
                 <ListBox ItemsSource="{Binding PathFolders}">
@@ -54,8 +54,8 @@
                 </ListBox>
             </ScrollViewer>
         </StackPanel>
-        <Button Grid.Column="0" Grid.Row="2" Content="Add folder" Command="{Binding  AddFolderCommand}" />
-
+        <Button Grid.Column="0" Grid.Row="2" Content="Add folder" FontSize="20" Command="{Binding  AddFolderCommand}" />
+        <Button HorizontalAlignment="Right" Grid.Column="1" Grid.Row="2" IsEnabled="{Binding IsRenameEnabled}" FontSize="20" Content="Rename" Command="{Binding RenameCommand}" />
         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Grid.Column="1" Grid.Row="3">
             <TextBlock Text="Total images : " />
             <TextBlock Text="{Binding TotalImagesCount}" />
