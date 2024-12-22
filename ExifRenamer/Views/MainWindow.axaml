@@ -26,16 +26,18 @@
 
     <Grid Margin="5" ColumnDefinitions="*,2*" RowDefinitions="*,5*,*,Auto">
         <StackPanel Margin="5" Grid.RowSpan="2" Grid.Row="1" Grid.Column="0">
-            <Label Margin="0 0 0 10 " FontSize="30" Content="Add folders" />
-            <TextBlock TextWrapping="Wrap"  Margin="0 0 0 10 " Text="Add the folders that contains your photos" />
+            <Label Margin="0 0 0 10 " FontWeight="ExtraBold" Content="Add folders" />
+            <TextBlock TextWrapping="Wrap" Margin="0 0 0 10 " Text="Add the folders that contains your photos" />
             <ScrollViewer MaxHeight="350" HorizontalScrollBarVisibility="Disabled">
                 <ListBox ItemsSource="{Binding PathFolders}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="1">
                                 <Grid ColumnDefinitions="*, Auto">
-                                    <TextBlock Grid.Column="0" ToolTip.Tip="{Binding FullName}" Text="{Binding Name}" TextWrapping="WrapWithOverflow" />
-                                    <Button Grid.Column="1" Command="{Binding $parent[views:MainWindow].ViewModel.RemoveFolderCommand}"
+                                    <TextBlock Grid.Column="0" ToolTip.Tip="{Binding FullName}" Text="{Binding Name}"
+                                               TextWrapping="WrapWithOverflow" />
+                                    <Button Grid.Column="1"
+                                            Command="{Binding $parent[views:MainWindow].ViewModel.RemoveFolderCommand}"
                                             CommandParameter="{Binding}"
                                             VerticalAlignment="Top" HorizontalAlignment="Right">
                                         <Button.ContentTemplate>
@@ -58,9 +60,10 @@
             <TextBlock Text="Total images : " />
             <TextBlock Text="{Binding TotalImagesCount}" />
         </StackPanel>
-        
+
         <Grid Grid.Column="1" Grid.Row="1" ColumnDefinitions="2* 1*" RowDefinitions="*,*,*">
-            <ComboBox Margin="0 0 0 0" VerticalAlignment="Top" HorizontalAlignment="Stretch" ItemsSource="{Binding BuiltInRenamerPatterns}" Grid.Column="0"
+            <ComboBox Margin="0 0 0 0" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                      ItemsSource="{Binding BuiltInRenamerPatterns}" Grid.Column="0"
                       SelectedItem="{Binding SelectedBuiltInRenamerPattern, Mode=TwoWay}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
@@ -68,13 +71,14 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <Button VerticalAlignment="Top" IsVisible="{Binding IsSelectExifVisible}" Grid.Column="1" Grid.Row="0" Content="Select Exif metadata" Command="{Binding SelectExifMetadataCommand}" />   
+            <Button VerticalAlignment="Top" IsVisible="{Binding IsSelectExifVisible}" Grid.Column="1" Grid.Row="0"
+                    Content="Select Exif metadata" Command="{Binding SelectExifMetadataCommand}" />
             <Grid Margin="0 40 0 0" Grid.Row="1" ColumnSpan="2">
                 <ScrollViewer Height="350">
                     <ListBox Background="Transparent" ItemsSource="{Binding RenamePreviews}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="*,*,*">
+                                <Grid ColumnDefinitions="3*,*,3*">
                                     <TextBlock Grid.Column="0" Text="{Binding OldFilename}" />
                                     <TextBlock Grid.Column="1" Text="=>" />
                                     <TextBlock Grid.Column="2" Text="{Binding NewFilename}" />
@@ -85,7 +89,8 @@
                 </ScrollViewer>
             </Grid>
         </Grid>
-        
-        <Grid Margin="0" IsVisible="False" x:Name="MainWindowOverlay" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="4"/>
-        </Grid>
+
+        <Grid Margin="0" IsVisible="False" x:Name="MainWindowOverlay" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0"
+              Grid.RowSpan="4" />
+    </Grid>
 </Window>

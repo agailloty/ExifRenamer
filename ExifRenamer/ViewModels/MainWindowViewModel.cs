@@ -13,13 +13,13 @@ namespace ExifRenamer.ViewModels;
 public class MainWindowViewModel : ViewModelBase
 {
     private readonly IDialogService _dialogService;
-    private readonly FolderService _folderService;
     private readonly ExifService _exifService;
-    private int _totalImagesCount;
+    private readonly FolderService _folderService;
     private readonly RenamerService _renamerService;
     private bool _isSelectExifVisible;
-    private RenamerPatternModel _selectedBuiltInRenamerPattern;
     private ObservableCollection<PreviewModel> _renamePreviews;
+    private RenamerPatternModel _selectedBuiltInRenamerPattern;
+    private int _totalImagesCount;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -32,6 +32,7 @@ public class MainWindowViewModel : ViewModelBase
         _exifService = new ExifService();
         _renamerService = new RenamerService();
         BuiltInRenamerPatterns = _renamerService.GetBuiltInRenamerPatterns().AsReadOnly();
+        SelectedBuiltInRenamerPattern = BuiltInRenamerPatterns.First();
     }
 
     public ICommand RemoveFolderCommand { get; }
@@ -46,7 +47,6 @@ public class MainWindowViewModel : ViewModelBase
     }
 
     public ICommand SelectExifMetadataCommand { get; }
-    public List<ExifModel> ExifMetadata { get; }
     public ICommand OKCommand { get; }
     public ReadOnlyCollection<RenamerPatternModel> BuiltInRenamerPatterns { get; }
 
@@ -55,10 +55,8 @@ public class MainWindowViewModel : ViewModelBase
         get => _selectedBuiltInRenamerPattern;
         set
         {
-            if (SetProperty(ref _selectedBuiltInRenamerPattern, value))
-            {
-                IsSelectExifVisible = value.Name == "Custom";
-            }
+            if (SetProperty(ref _selectedBuiltInRenamerPattern, value)) IsSelectExifVisible = value.Name == "Custom";
+            UpdateImageCount();
         }
     }
 
@@ -80,7 +78,7 @@ public class MainWindowViewModel : ViewModelBase
         PathFolders.Remove(folder);
         UpdateImageCount();
     }
-    
+
 
     private async Task AddFolder()
     {
@@ -99,19 +97,16 @@ public class MainWindowViewModel : ViewModelBase
     private PreviewModel[] GetImagePreviews()
     {
         List<string[]> previews = new();
-        foreach (var folder in PathFolders)
-        {
-            previews.Add(_folderService.GetImageFiles(folder.FullName));
-        }
-        
+        foreach (var folder in PathFolders) previews.Add(_folderService.GetImageFiles(folder.FullName));
+
         var files = previews.SelectMany(preview => preview).ToArray();
         return _renamerService.GetRenamePreviews(files, SelectedBuiltInRenamerPattern);
     }
-    
+
     private async void OpenExifMetadataDialog()
     {
         if (!PathFolders.Any()) return;
-        string path = PathFolders.First().FullName;
+        var path = PathFolders.First().FullName;
         var files = _folderService.GetImageFiles(path);
         if (files.Any())
         {
@@ -119,7 +114,7 @@ public class MainWindowViewModel : ViewModelBase
             await _dialogService.ShowExifMetadataDialogAsync();
         }
     }
-    
+
     private void UpdateImageCount()
     {
         RenamePreviews = new ObservableCollection<PreviewModel>(GetImagePreviews());

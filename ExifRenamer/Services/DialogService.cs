@@ -1,8 +1,5 @@
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using ExifRenamer.Models;
 using ExifRenamer.Views;
 
 namespace ExifRenamer.Services;
@@ -11,7 +8,6 @@ public class DialogService(MainWindow owner) : IDialogService
 {
     public async Task<string?> ShowFolderBrowserDialogAsync()
     {
-        
         var dialog = new OpenFolderDialog();
         return await dialog.ShowAsync(owner);
     }

@@ -26,7 +26,7 @@ public partial class MainWindow : Window
     {
         AvaloniaXamlLoader.Load(this);
     }
-    
+
     public void ShowOverlay()
     {
         OverlayGrid.IsVisible = true;

@@ -12,14 +12,14 @@
         ExtendClientAreaToDecorationsHint="True"
         ShowInTaskbar="False"
         Title="ExifMetadataDialog">
-        <Border>
-                <Grid>
-                <StackPanel>
-                        <TextBlock Text="Exif Metadata" FontSize="20" FontWeight="Bold" />
-                        <TextBlock Text="The following metadata will be used to rename the files" />
+    <Border>
+        <Grid>
+            <StackPanel>
+                <TextBlock Text="Exif Metadata" FontSize="20" FontWeight="Bold" />
+                <TextBlock Text="The following metadata will be used to rename the files" />
 
-                        <Button Content="OK" Command="{Binding OKCommand}" />
-                </StackPanel>
-                </Grid>
-        </Border>
+                <Button Content="OK" Command="{Binding OKCommand}" />
+            </StackPanel>
+        </Grid>
+    </Border>
 </Window>

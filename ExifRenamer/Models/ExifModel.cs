@@ -1,7 +1,8 @@
 ﻿namespace ExifRenamer.Models;
 
-public record ExifModel(string Make, 
-    string Model, 
+public record ExifModel(
+    string Make,
+    string Model,
     string ExposureTime,
     string FNumber,
     string ISO,
@@ -14,6 +15,6 @@ public record ExifModel(string Make,
     string LensMake,
     string LensSpecification,
     string Software,
-    string DateTime, 
-    string Latitude, 
+    string DateTime,
+    string Latitude,
     string Longitude);
