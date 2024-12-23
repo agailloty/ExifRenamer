@@ -1,6 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using ExifRenamer.Models;
+using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
 
 namespace ExifRenamer.Services;
 
@@ -52,14 +57,14 @@ public class RenamerService
     {
         var file = new FileInfo(filename);
         var extension = file.Extension;
-        var newFilename = GetFormattedDate(file, pattern);
+        var creationTime = GetDateFromExif(filename) ?? file.CreationTime;
+        var newFilename = GetFormattedDate(creationTime, pattern);
         var folderPath = file.Directory.FullName;
         return new PreviewModel { OldFilename = file.Name, NewFilename = newFilename, FolderPath = folderPath, Extension = extension };
     }
 
-    private string GetFormattedDate(FileInfo file, RenamerPatternModel pattern)
+    private string GetFormattedDate(DateTime date, RenamerPatternModel pattern)
     {
-        var date = file.CreationTime;
         return pattern.Name switch
         {
             "Date (YY-MM-DD)" => date.ToString("yy-MM-dd"),
@@ -89,5 +94,14 @@ public class RenamerService
             preview.NewFilename = newName;
         }
         return previews;
+    }
+    
+    private DateTime? GetDateFromExif(string filename)
+    {
+        var directories = ImageMetadataReader.ReadMetadata(filename);
+        var exifSubDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+        var originalDate = exifSubDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
+        var dateFormat = new DateTimeFormatInfo {DateSeparator = ":", TimeSeparator = ":"};
+        return originalDate != null ? DateTime.Parse(originalDate, dateFormat) : null;
     }
 }
