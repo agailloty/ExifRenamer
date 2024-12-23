@@ -1,0 +1,48 @@
+name: Publish .NET Application
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet publish -c Release -r ${{ matrix.os }} --self-contained -p:PublishTrimmed=true -o ./publish
+
+    - name: Archive build
+      if: matrix.os == 'ubuntu-latest'
+      run: tar -czvf myapp-ubuntu.tar.gz -C ./publish .
+      if: matrix.os == 'macos-latest'
+      run: tar -czvf myapp-macos.tar.gz -C ./publish .
+      if: matrix.os == 'windows-latest'
+      run: Compress-Archive -Path ./publish/* -DestinationPath myapp-windows.zip
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.os }}-build
+        path: |
+          myapp-ubuntu.tar.gz
+          myapp-macos.tar.gz
+          myapp-windows.zip
