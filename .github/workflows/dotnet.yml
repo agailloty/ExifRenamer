@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, osx, windows-latest]
+        os: [linux-x64, osx-x64, win-x64]
 
     steps:
     - name: Checkout code
@@ -31,22 +31,22 @@ jobs:
       run: dotnet publish -c Release -r ${{ matrix.os }} --self-contained -p:PublishTrimmed=true -o ./publish
 
     - name: Archive build (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      run: tar -czvf myapp-ubuntu.tar.gz -C ./publish .
+      if: matrix.os == 'linux-x64'
+      run: tar -czvf exifrenamer-ubuntu.tar.gz -C ./publish .
 
     - name: Archive build (macOS)
-      if: matrix.os == 'osx'
-      run: tar -czvf myapp-macos.tar.gz -C ./publish .
+      if: matrix.os == 'osx-x64'
+      run: tar -czvf exifrenamer-macos.tar.gz -C ./publish .
 
     - name: Archive build (Windows)
-      if: matrix.os == 'windows-latest'
-      run: Compress-Archive -Path ./publish/* -DestinationPath myapp-windows.zip
+      if: matrix.os == 'win-x64'
+      run: Compress-Archive -Path ./publish/* -DestinationPath exifrenamer-windows.zip
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.os }}-build
         path: |
-          myapp-ubuntu.tar.gz
-          myapp-macos.tar.gz
-          myapp-windows.zip
+          exifrenamer-ubuntu.tar.gz
+          exifrenamer-macos.tar.gz
+          exifrenamer-windows.zip
