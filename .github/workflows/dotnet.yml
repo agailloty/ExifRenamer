@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, osx, windows-latest]
 
     steps:
     - name: Checkout code
@@ -35,7 +35,7 @@ jobs:
       run: tar -czvf myapp-ubuntu.tar.gz -C ./publish .
 
     - name: Archive build (macOS)
-      if: matrix.os == 'macos-latest'
+      if: matrix.os == 'osx'
       run: tar -czvf myapp-macos.tar.gz -C ./publish .
 
     - name: Archive build (Windows)
