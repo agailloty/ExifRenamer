@@ -55,13 +55,13 @@
             </ScrollViewer>
         </StackPanel>
         <Button Grid.Column="0" Grid.Row="2" Content="Add folder" FontSize="20" Command="{Binding  AddFolderCommand}" />
-        <Button HorizontalAlignment="Right" Grid.Column="1" Grid.Row="2" IsEnabled="{Binding IsRenameEnabled}" FontSize="20" Content="Rename" Command="{Binding RenameCommand}" />
-        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Grid.Column="1" Grid.Row="3">
+        <Button IsVisible="{Binding HasImages}" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="2" IsEnabled="{Binding IsRenameEnabled}" FontSize="20" Content="Rename" Command="{Binding RenameCommand}" />
+        <StackPanel IsVisible="{Binding HasImages}" HorizontalAlignment="Right" Orientation="Horizontal" Grid.Column="1" Grid.Row="3">
             <TextBlock Text="Total images : " />
             <TextBlock Text="{Binding TotalImagesCount}" />
         </StackPanel>
 
-        <Grid Grid.Column="1" Grid.Row="1" ColumnDefinitions="2* 1*" RowDefinitions="*,*,*">
+        <Grid IsVisible="{Binding HasImages}" Grid.Column="1" Grid.Row="1" ColumnDefinitions="2* 1*" RowDefinitions="*,*,*">
             <ComboBox Margin="0 0 0 0" VerticalAlignment="Top" HorizontalAlignment="Stretch"
                       ItemsSource="{Binding BuiltInRenamerPatterns}" Grid.Column="0"
                       SelectedItem="{Binding SelectedBuiltInRenamerPattern, Mode=TwoWay}">

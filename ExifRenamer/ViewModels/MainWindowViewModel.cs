@@ -21,6 +21,7 @@ public class MainWindowViewModel : ViewModelBase
     private RenamerPatternModel _selectedBuiltInRenamerPattern;
     private int _totalImagesCount;
     private bool _isRenameEnabled;
+    private bool _hasImages;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -45,7 +46,19 @@ public class MainWindowViewModel : ViewModelBase
     public int TotalImagesCount
     {
         get => _totalImagesCount;
-        set => SetProperty(ref _totalImagesCount, value);
+        set 
+        {
+            if (SetProperty(ref _totalImagesCount, value))
+            {
+                HasImages = value > 0;
+            } 
+        }
+    }
+
+    public bool HasImages
+    {
+        get => _hasImages;
+        set => SetProperty(ref _hasImages, value);
     }
 
     public ICommand SelectExifMetadataCommand { get; }
