@@ -9,7 +9,6 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/ExifRenamer.ico"
         WindowStartupLocation="CenterScreen"
-        CanResize="False"
         Title="Exif Renamer">
 
     <Design.DataContext>
