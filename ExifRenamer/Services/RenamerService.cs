@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using ExifRenamer.Models;
 using MetadataExtractor;
 using MetadataExtractor.Formats.Exif;
@@ -62,11 +63,18 @@ new() { Name = "Date Time (Monthname-DD-YYYY_HHMMSS)", Description = "Monthname-
         }
     }
 
-    public PreviewModel[] GetRenamePreviews(string[] filenames, RenamerPatternModel pattern)
+    public async Task<PreviewModel[]> GetRenamePreviews(string[] filenames, RenamerPatternModel pattern)
     {
         var previews = new PreviewModel[filenames.Length];
-        for (var i = 0; i < filenames.Length; i++) previews[i] = GetRenamePreview(filenames[i], pattern);
-         previews = MakeUniqueFilenames(previews);
+        await Task.Run(() =>
+        {
+            for (var i = 0; i < filenames.Length; i++)
+            {
+                previews[i] = GetRenamePreview(filenames[i], pattern);
+            }
+        });
+        
+        previews = MakeUniqueFilenames(previews);
         return previews;
     }
 

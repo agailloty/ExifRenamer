@@ -117,13 +117,14 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private PreviewModel[] GetImagePreviews()
+    private async Task<PreviewModel[]> GetImagePreviews()
     {
         List<string[]> previews = new();
         foreach (var folder in PathFolders) previews.Add(_folderService.GetImageFiles(folder.FullName));
 
         var files = previews.SelectMany(preview => preview).ToArray();
-        return _renamerService.GetRenamePreviews(files, SelectedBuiltInRenamerPattern);
+        var previewResults = await _renamerService.GetRenamePreviews(files, SelectedBuiltInRenamerPattern);
+        return previewResults;
     }
 
     private async void OpenExifMetadataDialog()
@@ -138,10 +139,11 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private void UpdateImageCount()
+    private async Task UpdateImageCount()
     {
-        RenamePreviews = new ObservableCollection<PreviewModel>(GetImagePreviews());
-        TotalImagesCount = GetImagePreviews().Length;
+        var imagePreviews = await GetImagePreviews();
+        RenamePreviews = new ObservableCollection<PreviewModel>(imagePreviews);
+        TotalImagesCount = RenamePreviews.Count;
         IsRenameEnabled = TotalImagesCount > 0;
     }
     
