@@ -12,6 +12,9 @@ public partial class MainWindow : Window
         InitializeComponent();
         var dialogService = new DialogService(this);
         DataContext = new MainWindowViewModel(dialogService);
+        var screen = Screens.Primary;
+        // Set width and height as percentages of the screen
+        Width = screen.WorkingArea.Width * 0.5;
     }
 
     private Grid OverlayGrid => this.FindControl<Grid>("MainWindowOverlay");
