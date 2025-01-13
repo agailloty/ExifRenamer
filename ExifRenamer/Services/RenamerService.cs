@@ -16,30 +16,31 @@ public class RenamerService
     {
         return new List<RenamerPatternModel>
         {
-new() { Name = "Date (YY-MM-DD)", Description = "Year-Month-Day (2-digit year)" },
-new() { Name = "Date (YYYY-MM-DD)", Description = "Year-Month-Day (4-digit year)" },
-new() { Name = "Date (YY-Monthname-DD)", Description = "Year-Monthname-Day (2-digit year)" },
-new() { Name = "Date (YYYY-Monthname-DD)", Description = "Year-Monthname-Day (4-digit year)" },
-new() { Name = "Date Time (YY-MM-DD_HHMMSS)", Description = "Year-Month-Day HourMinuteSecond (2-digit year)" },
-new() { Name = "Date Time (YYYY-MM-DD_HHMMSS)", Description = "Year-Month-Day HourMinuteSecond (4-digit year)" },
-new() { Name = "Date Time (YY-Monthname-DD_HHMMSS)", Description = "Year-Monthname-Day HourMinuteSecond (2-digit year)" },
-new() { Name = "Date Time (YYYY-Monthname-DD_HHMMSS)", Description = "Year-Monthname-Day HourMinuteSecond (4-digit year)" },
-new() { Name = "Date (DD-MM-YY)", Description = "Day-Month-Year (2-digit year)" },
-new() { Name = "Date (DD-MM-YYYY)", Description = "Day-Month-Year (4-digit year)" },
-new() { Name = "Date (DD-Monthname-YY)", Description = "Day-Monthname-Year (2-digit year)" },
-new() { Name = "Date (DD-Monthname-YYYY)", Description = "Day-Monthname-Year (4-digit year)" },
-new() { Name = "Date Time (DD-MM-YY_HHMMSS)", Description = "Day-Month-Year HourMinuteSecond (2-digit year)" },
-new() { Name = "Date Time (DD-MM-YYYY_HHMMSS)", Description = "Day-Month-Year HourMinuteSecond (4-digit year)" },
-new() { Name = "Date Time (DD-Monthname-YY_HHMMSS)", Description = "Day-Monthname-Year HourMinuteSecond (2-digit year)" },
-new() { Name = "Date Time (DD-Monthname-YYYY_HHMMSS)", Description = "Day-Monthname-Year HourMinuteSecond (4-digit year)" },
-new() { Name = "Date (MM-DD-YY)", Description = "Month-Day-Year (2-digit year)" },
-new() { Name = "Date (MM-DD-YYYY)", Description = "Month-Day-Year (4-digit year)" },
-new() { Name = "Date (Monthname-DD-YY)", Description = "Monthname-Day-Year (2-digit year)" },
-new() { Name = "Date (Monthname-DD-YYYY)", Description = "Monthname-Day-Year (4-digit year)" },
-new() { Name = "Date Time (MM-DD-YY_HHMMSS)", Description = "Month-Day-Year HourMinuteSecond (2-digit year)" },
-new() { Name = "Date Time (MM-DD-YYYY_HHMMSS)", Description = "Month-Day-Year HourMinuteSecond (4-digit year)" },
-new() { Name = "Date Time (Monthname-DD-YY_HHMMSS)", Description = "Monthname-Day-Year HourMinuteSecond (2-digit year)" },
-new() { Name = "Date Time (Monthname-DD-YYYY_HHMMSS)", Description = "Monthname-Day-Year HourMinuteSecond (4-digit year)" },
+            new() { Name = "Choose pattern", Description = "Choose a renaming pattern" },
+            new() { Name = "Date (YY-MM-DD)", Description = "Year-Month-Day (2-digit year)" },
+            new() { Name = "Date (YYYY-MM-DD)", Description = "Year-Month-Day (4-digit year)" },
+            new() { Name = "Date (YY-Monthname-DD)", Description = "Year-Monthname-Day (2-digit year)" },
+            new() { Name = "Date (YYYY-Monthname-DD)", Description = "Year-Monthname-Day (4-digit year)" },
+            new() { Name = "Date Time (YY-MM-DD_HHMMSS)", Description = "Year-Month-Day HourMinuteSecond (2-digit year)" },
+            new() { Name = "Date Time (YYYY-MM-DD_HHMMSS)", Description = "Year-Month-Day HourMinuteSecond (4-digit year)" },
+            new() { Name = "Date Time (YY-Monthname-DD_HHMMSS)", Description = "Year-Monthname-Day HourMinuteSecond (2-digit year)" },
+            new() { Name = "Date Time (YYYY-Monthname-DD_HHMMSS)", Description = "Year-Monthname-Day HourMinuteSecond (4-digit year)" },
+            new() { Name = "Date (DD-MM-YY)", Description = "Day-Month-Year (2-digit year)" },
+            new() { Name = "Date (DD-MM-YYYY)", Description = "Day-Month-Year (4-digit year)" },
+            new() { Name = "Date (DD-Monthname-YY)", Description = "Day-Monthname-Year (2-digit year)" },
+            new() { Name = "Date (DD-Monthname-YYYY)", Description = "Day-Monthname-Year (4-digit year)" },
+            new() { Name = "Date Time (DD-MM-YY_HHMMSS)", Description = "Day-Month-Year HourMinuteSecond (2-digit year)" },
+            new() { Name = "Date Time (DD-MM-YYYY_HHMMSS)", Description = "Day-Month-Year HourMinuteSecond (4-digit year)" },
+            new() { Name = "Date Time (DD-Monthname-YY_HHMMSS)", Description = "Day-Monthname-Year HourMinuteSecond (2-digit year)" },
+            new() { Name = "Date Time (DD-Monthname-YYYY_HHMMSS)", Description = "Day-Monthname-Year HourMinuteSecond (4-digit year)" },
+            new() { Name = "Date (MM-DD-YY)", Description = "Month-Day-Year (2-digit year)" },
+            new() { Name = "Date (MM-DD-YYYY)", Description = "Month-Day-Year (4-digit year)" },
+            new() { Name = "Date (Monthname-DD-YY)", Description = "Monthname-Day-Year (2-digit year)" },
+            new() { Name = "Date (Monthname-DD-YYYY)", Description = "Monthname-Day-Year (4-digit year)" },
+            new() { Name = "Date Time (MM-DD-YY_HHMMSS)", Description = "Month-Day-Year HourMinuteSecond (2-digit year)" },
+            new() { Name = "Date Time (MM-DD-YYYY_HHMMSS)", Description = "Month-Day-Year HourMinuteSecond (4-digit year)" },
+            new() { Name = "Date Time (Monthname-DD-YY_HHMMSS)", Description = "Monthname-Day-Year HourMinuteSecond (2-digit year)" },
+            new() { Name = "Date Time (Monthname-DD-YYYY_HHMMSS)", Description = "Monthname-Day-Year HourMinuteSecond (4-digit year)" },
             new() { Name = "Custom", Description = "Custom" }
         };
     }
@@ -66,6 +67,11 @@ new() { Name = "Date Time (Monthname-DD-YYYY_HHMMSS)", Description = "Monthname-
     public async Task<PreviewModel[]> GetRenamePreviews(string[] filenames, RenamerPatternModel pattern)
     {
         var previews = new PreviewModel[filenames.Length];
+        if (pattern.Name == "Choose pattern")
+        {
+            previews = filenames.Select(f => new PreviewModel { OldFilename = new FileInfo(f).Name }).ToArray();
+            return previews;
+        }
         await Task.Run(() =>
         {
             for (var i = 0; i < filenames.Length; i++)
@@ -83,7 +89,7 @@ new() { Name = "Date Time (Monthname-DD-YYYY_HHMMSS)", Description = "Monthname-
         var file = new FileInfo(filename);
         var extension = file.Extension;
         var creationTime = GetDateFromExif(filename) ?? file.CreationTime;
-        var newFilename = GetFormattedDate(creationTime, pattern);
+        var newFilename = $"{GetFormattedDate(creationTime, pattern)}{extension}";
         var folderPath = file.Directory.FullName;
         return new PreviewModel { OldFilename = file.Name, NewFilename = newFilename, FolderPath = folderPath, Extension = extension };
     }

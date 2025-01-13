@@ -119,11 +119,13 @@ public class MainWindowViewModel : ViewModelBase
 
     private async Task<PreviewModel[]> GetImagePreviews()
     {
+        IsBusy = true;
         List<string[]> previews = new();
         foreach (var folder in PathFolders) previews.Add(_folderService.GetImageFiles(folder.FullName));
 
         var files = previews.SelectMany(preview => preview).ToArray();
         var previewResults = await _renamerService.GetRenamePreviews(files, SelectedBuiltInRenamerPattern);
+        IsBusy = false;
         return previewResults;
     }
 

@@ -24,7 +24,7 @@
     </Window.Styles>
 
     <Grid Margin="5" ColumnDefinitions="*,2*" RowDefinitions="*,5*,*,Auto">
-        <StackPanel Margin="5" Grid.RowSpan="2" Grid.Row="1" Grid.Column="0">
+        <StackPanel Margin="0 0 30 0" Grid.RowSpan="2" Grid.Row="1" Grid.Column="0">
             <Label Margin="0 0 0 10 " FontWeight="ExtraBold" Content="Add folders" FontSize="20" />
             <TextBlock TextWrapping="Wrap" Margin="0 0 0 10 " Text="Add the folders that contains your photos" />
             <ScrollViewer MaxHeight="350" HorizontalScrollBarVisibility="Disabled">
@@ -61,7 +61,7 @@
         </StackPanel>
 
         <Grid IsVisible="{Binding HasImages}" Grid.Column="1" Grid.Row="1" ColumnDefinitions="2* 1*" RowDefinitions="*,*,*">
-            <ComboBox Margin="0 0 0 0" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+            <ComboBox Margin="0 -20 0 0" VerticalAlignment="Top" HorizontalAlignment="Stretch"
                       ItemsSource="{Binding BuiltInRenamerPatterns}" Grid.Column="0"
                       SelectedItem="{Binding SelectedBuiltInRenamerPattern, Mode=TwoWay}">
                 <ComboBox.ItemTemplate>
