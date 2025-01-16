@@ -155,7 +155,7 @@ public class MainWindowViewModel : ViewModelBase
         foreach (var preview in previews)
         {
             var oldPath = Path.Join(preview.FolderPath, preview.OldFilename);
-            var newPath = Path.Join(preview.FolderPath, $"{preview.NewFilename}{preview.Extension}");
+            var newPath = Path.Join(preview.FolderPath, preview.NewNameWithExtension);
             File.Move(oldPath, newPath, overwrite:true);
         }
         UpdateImageCount();
