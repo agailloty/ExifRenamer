@@ -14,7 +14,7 @@
                         <Grid ColumnDefinitions="3*,*,3*">
                             <TextBlock Grid.Column="0" Text="{Binding OldFilename}" />
                             <TextBlock Grid.Column="1" Text="=>" />
-                            <TextBlock Grid.Column="2" Text="{Binding NewFilename}" />
+                            <TextBlock Grid.Column="2" Text="{Binding NewNameWithExtension}" />
                         </Grid>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

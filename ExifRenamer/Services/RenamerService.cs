@@ -89,7 +89,7 @@ public class RenamerService
         var file = new FileInfo(filename);
         var extension = file.Extension;
         var creationTime = GetDateFromExif(filename) ?? file.CreationTime;
-        var newFilename = $"{GetFormattedDate(creationTime, pattern)}{extension}";
+        var newFilename = $"{GetFormattedDate(creationTime, pattern)}";
         var folderPath = file.Directory.FullName;
         return new PreviewModel { OldFilename = file.Name, NewFilename = newFilename, FolderPath = folderPath, Extension = extension };
     }
