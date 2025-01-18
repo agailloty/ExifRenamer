@@ -14,16 +14,8 @@ public class ViewModelBase : ObservableObject
         {
             if (_isBusy != value)
             {
-                _isBusy = value;
-                OnPropertyChanged(nameof(IsBusy));
+                SetProperty(ref _isBusy, value);
             }
         }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
