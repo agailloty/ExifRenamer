@@ -17,30 +17,32 @@ public class RenamerService
         return new List<RenamerPatternModel>
         {
             new() { Name = "Choose pattern", Description = "Choose a renaming pattern" },
-            new() { Name = "Date (YY-MM-DD)", Description = "Year-Month-Day (2-digit year)" },
-            new() { Name = "Date (YYYY-MM-DD)", Description = "Year-Month-Day (4-digit year)" },
-            new() { Name = "Date (YY-Monthname-DD)", Description = "Year-Monthname-Day (2-digit year)" },
-            new() { Name = "Date (YYYY-Monthname-DD)", Description = "Year-Monthname-Day (4-digit year)" },
-            new() { Name = "Date Time (YY-MM-DD_HHMMSS)", Description = "Year-Month-Day HourMinuteSecond (2-digit year)" },
-            new() { Name = "Date Time (YYYY-MM-DD_HHMMSS)", Description = "Year-Month-Day HourMinuteSecond (4-digit year)" },
-            new() { Name = "Date Time (YY-Monthname-DD_HHMMSS)", Description = "Year-Monthname-Day HourMinuteSecond (2-digit year)" },
-            new() { Name = "Date Time (YYYY-Monthname-DD_HHMMSS)", Description = "Year-Monthname-Day HourMinuteSecond (4-digit year)" },
-            new() { Name = "Date (DD-MM-YY)", Description = "Day-Month-Year (2-digit year)" },
-            new() { Name = "Date (DD-MM-YYYY)", Description = "Day-Month-Year (4-digit year)" },
-            new() { Name = "Date (DD-Monthname-YY)", Description = "Day-Monthname-Year (2-digit year)" },
-            new() { Name = "Date (DD-Monthname-YYYY)", Description = "Day-Monthname-Year (4-digit year)" },
-            new() { Name = "Date Time (DD-MM-YY_HHMMSS)", Description = "Day-Month-Year HourMinuteSecond (2-digit year)" },
-            new() { Name = "Date Time (DD-MM-YYYY_HHMMSS)", Description = "Day-Month-Year HourMinuteSecond (4-digit year)" },
-            new() { Name = "Date Time (DD-Monthname-YY_HHMMSS)", Description = "Day-Monthname-Year HourMinuteSecond (2-digit year)" },
-            new() { Name = "Date Time (DD-Monthname-YYYY_HHMMSS)", Description = "Day-Monthname-Year HourMinuteSecond (4-digit year)" },
-            new() { Name = "Date (MM-DD-YY)", Description = "Month-Day-Year (2-digit year)" },
-            new() { Name = "Date (MM-DD-YYYY)", Description = "Month-Day-Year (4-digit year)" },
-            new() { Name = "Date (Monthname-DD-YY)", Description = "Monthname-Day-Year (2-digit year)" },
-            new() { Name = "Date (Monthname-DD-YYYY)", Description = "Monthname-Day-Year (4-digit year)" },
-            new() { Name = "Date Time (MM-DD-YY_HHMMSS)", Description = "Month-Day-Year HourMinuteSecond (2-digit year)" },
-            new() { Name = "Date Time (MM-DD-YYYY_HHMMSS)", Description = "Month-Day-Year HourMinuteSecond (4-digit year)" },
-            new() { Name = "Date Time (Monthname-DD-YY_HHMMSS)", Description = "Monthname-Day-Year HourMinuteSecond (2-digit year)" },
-            new() { Name = "Date Time (Monthname-DD-YYYY_HHMMSS)", Description = "Monthname-Day-Year HourMinuteSecond (4-digit year)" },
+            new() { Name = "YY-MM-DD", Description = "Year-Month-Day (2-digit year)" },
+            new() { Name = "YYYY-MM-DD", Description = "Year-Month-Day (4-digit year)" },
+            new() { Name = "YY-Monthname-DD", Description = "Year-Monthname-Day (2-digit year)" },
+            new() { Name = "YYYY-Monthname-DD", Description = "Year-Monthname-Day (4-digit year)" },
+            new() { Name = "YY-MM-DD_HHMMSS", Description = "Year-Month-Day HourMinuteSecond (2-digit year)" },
+            new() { Name = "YYMMDD_HHMMSS", Description = "YearMonthDay HourMinuteSecond (2-digit year)" },
+            new() { Name = "YYYY-MM-DD_HHMMSS", Description = "Year-Month-Day HourMinuteSecond (4-digit year)" },
+            new() { Name = "YYYYMMDD_HHMMSS", Description = "YearMonthDay HourMinuteSecond (4-digit year)" },
+            new() { Name = "YY-Monthname-DD_HHMMSS", Description = "Year-Monthname-Day HourMinuteSecond (2-digit year)" },
+            new() { Name = "YYYY-Monthname-DD_HHMMSS", Description = "Year-Monthname-Day HourMinuteSecond (4-digit year)" },
+            new() { Name = "DD-MM-YY", Description = "Day-Month-Year (2-digit year)" },
+            new() { Name = "DD-MM-YYYY", Description = "Day-Month-Year (4-digit year)" },
+            new() { Name = "DD-Monthname-YY", Description = "Day-Monthname-Year (2-digit year)" },
+            new() { Name = "DD-Monthname-YYYY", Description = "Day-Monthname-Year (4-digit year)" },
+            new() { Name = "DD-MM-YY_HHMMSS", Description = "Day-Month-Year HourMinuteSecond (2-digit year)" },
+            new() { Name = "DD-MM-YYYY_HHMMSS", Description = "Day-Month-Year HourMinuteSecond (4-digit year)" },
+            new() { Name = "DD-Monthname-YY_HHMMSS", Description = "Day-Monthname-Year HourMinuteSecond (2-digit year)" },
+            new() { Name = "DD-Monthname-YYYY_HHMMSS", Description = "Day-Monthname-Year HourMinuteSecond (4-digit year)" },
+            new() { Name = "MM-DD-YY", Description = "Month-Day-Year (2-digit year)" },
+            new() { Name = "MM-DD-YYYY", Description = "Month-Day-Year (4-digit year)" },
+            new() { Name = "Monthname-DD-YY", Description = "Monthname-Day-Year (2-digit year)" },
+            new() { Name = "Monthname-DD-YYYY", Description = "Monthname-Day-Year (4-digit year)" },
+            new() { Name = "MM-DD-YY_HHMMSS", Description = "Month-Day-Year HourMinuteSecond (2-digit year)" },
+            new() { Name = "MM-DD-YYYY_HHMMSS", Description = "Month-Day-Year HourMinuteSecond (4-digit year)" },
+            new() { Name = "Monthname-DD-YY_HHMMSS", Description = "Monthname-Day-Year HourMinuteSecond (2-digit year)" },
+            new() { Name = "Monthname-DD-YYYY_HHMMSS", Description = "Monthname-Day-Year HourMinuteSecond (4-digit year)" },
             new() { Name = "Custom", Description = "Custom" }
         };
     }
@@ -96,35 +98,13 @@ public class RenamerService
 
     private string GetFormattedDate(DateTime date, RenamerPatternModel pattern)
     {
-        return pattern.Name switch
-        {
-
-            "Date (YY-MM-DD)" => date.ToString("yy-MM-dd"),
-            "Date (YYYY-MM-DD)" => date.ToString("yyyy-MM-dd"),
-            "Date (YY-Monthname-DD)" => date.ToString("yy-MMMM-dd"),
-            "Date (YYYY-Monthname-DD)" => date.ToString("yyyy-MMMM-dd"),
-            "Date Time (YY-MM-DD_HHMMSS)" => date.ToString("yy-MM-dd_HHmmss"),
-            "Date Time (YYYY-MM-DD_HHMMSS)" => date.ToString("yyyy-MM-dd_HHmmss"),
-            "Date Time (YY-Monthname-DD_HHMMSS)" => date.ToString("yy-MMMM-dd_HHmmss"),
-            "Date Time (YYYY-Monthname-DD_HHMMSS)" => date.ToString("yyyy-MMMM-dd_HHmmss"),
-            "Date (DD-MM-YY)" => date.ToString("dd-MM-yy"),
-            "Date (DD-MM-YYYY)" => date.ToString("dd-MM-yyyy"),
-            "Date (DD-Monthname-YY)" => date.ToString("dd-MMMM-yy"),
-            "Date (DD-Monthname-YYYY)" => date.ToString("dd-MMMM-yyyy"),
-            "Date Time (DD-MM-YY_HHMMSS)" => date.ToString("dd-MM-yy_HHmmss"),
-            "Date Time (DD-MM-YYYY_HHMMSS)" => date.ToString("dd-MM-yyyy_HHmmss"),
-            "Date Time (DD-Monthname-YY_HHMMSS)" => date.ToString("dd-MMMM-yy_HHmmss"),
-            "Date Time (DD-Monthname-YYYY_HHMMSS)" => date.ToString("dd-MMMM-yyyy_HHmmss"),
-            "Date (MM-DD-YY)" => date.ToString("MM-dd-yy"),
-            "Date (MM-DD-YYYY)" => date.ToString("MM-dd-yyyy"),
-            "Date (Monthname-DD-YY)" => date.ToString("MMMM-dd-yy"),
-            "Date (Monthname-DD-YYYY)" => date.ToString("MMMM-dd-yyyy"),
-            "Date Time (MM-DD-YY_HHMMSS)" => date.ToString("MM-dd-yy_HHmmss"),
-            "Date Time (MM-DD-YYYY_HHMMSS)" => date.ToString("MM-dd-yyyy_HHmmss"),
-            "Date Time (Monthname-DD-YY_HHMMSS)" => date.ToString("MMMM-dd-yy_HHmmss"),
-            "Date Time (Monthname-DD-YYYY_HHMMSS)" => date.ToString("MMMM-dd-yyyy_HHmmss"),
-            _ => date.ToString("yyyy-MM-dd")
-        };
+        string formattedDate = pattern.Name
+            .Replace("Y", "y")
+            .Replace("Monthname", "MMMM")
+            .Replace("DD", "dd")
+            .Replace("MMSS", "mmss");
+        
+        return date.ToString(formattedDate);
     }
     
     private PreviewModel[] MakeUniqueFilenames(PreviewModel[] previews)
