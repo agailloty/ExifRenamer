@@ -36,6 +36,12 @@ public class MainWindowViewModel : ViewModelBase
         BuiltInRenamerPatterns = _renamerService.GetBuiltInRenamerPatterns().AsReadOnly();
         SelectedBuiltInRenamerPattern = BuiltInRenamerPatterns.First();
         RenameCommand = new RelayCommand(RenameImages);
+        RenamerDateTypes = new ObservableCollection<RenamerDateType>
+        {
+            new("Creation date", DateType.Creation),
+            new("Photo taken date", DateType.PhotoTaken),
+            new("Modification date", DateType.Modification),
+        };
     }
 
     public ICommand RemoveFolderCommand { get; }
@@ -100,6 +106,9 @@ public class MainWindowViewModel : ViewModelBase
         get => _isRenameEnabled;
         set => SetProperty(ref _isRenameEnabled, value);
     }
+    
+    public ObservableCollection<RenamerDateType> RenamerDateTypes { get; set; }
+    public RenamerDateType SelectedRenamerDateType { get; set; }
 
     private void RemoveFolder(DirectoryInfo? folder)
     {
