@@ -24,7 +24,7 @@
     </Window.Styles>
 
     <Grid Margin="5" ColumnDefinitions="*,2*" RowDefinitions="*,5*,*,Auto">
-        <StackPanel Margin="0 0 30 0" Grid.RowSpan="2" Grid.Row="1" Grid.Column="0">
+        <StackPanel Grid.Column="0" Grid.Row="1" Margin="0 0 30 0" Grid.RowSpan="2">
             <Label Margin="0 0 0 10 " FontWeight="ExtraBold" Content="Add folders" FontSize="20" />
             <TextBlock TextWrapping="Wrap" Margin="0 0 0 10 " Text="Add the folders that contains your photos" />
             <ScrollViewer MaxHeight="350" HorizontalScrollBarVisibility="Disabled">
@@ -53,16 +53,26 @@
                 </ListBox>
             </ScrollViewer>
         </StackPanel>
-        <Button Grid.Column="0" Grid.Row="2" Content="Add folder" FontSize="20" Command="{Binding  AddFolderCommand}" />
-        <Button IsVisible="{Binding HasImages}" HorizontalAlignment="Right" Grid.Column="1" Grid.Row="2" IsEnabled="{Binding IsRenameEnabled}" FontSize="20" Content="Rename" Command="{Binding RenameCommand}" />
-        <StackPanel IsVisible="{Binding HasImages}" HorizontalAlignment="Right" Orientation="Horizontal" Grid.Column="1" Grid.Row="3">
+        <Button Grid.Column="0" Grid.Row="3" Content="Add folder" FontSize="20" Command="{Binding  AddFolderCommand}" />
+        <Button Grid.Column="1" Grid.Row="3" IsVisible="{Binding HasImages}" HorizontalAlignment="Right" IsEnabled="{Binding IsRenameEnabled}" FontSize="20" Content="Rename" Command="{Binding RenameCommand}" />
+        <StackPanel Grid.Column="1" Grid.Row="3" IsVisible="{Binding HasImages}" VerticalAlignment="Bottom" HorizontalAlignment="Center" Orientation="Horizontal">
             <TextBlock Text="Total images : " />
             <TextBlock Text="{Binding TotalImagesCount}" />
         </StackPanel>
 
-        <Grid IsVisible="{Binding HasImages}" Grid.Column="1" Grid.Row="1" ColumnDefinitions="2* 1*" RowDefinitions="*,*,*">
-            <ComboBox Margin="0 -20 0 0" VerticalAlignment="Top" HorizontalAlignment="Stretch"
-                      ItemsSource="{Binding BuiltInRenamerPatterns}" Grid.Column="0"
+        <Grid Grid.Column="1" Grid.Row="0" RowSpan="2" IsVisible="{Binding HasImages}" ColumnDefinitions="1*,2*" RowDefinitions="Auto,Auto,2*">
+            <ComboBox Grid.Column="0" Grid.Row="0"
+                      ItemsSource="{Binding RenamerDateTypes}"
+                      SelectedItem="{Binding SelectedRenamerDateType, Mode=TwoWay}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            
+            <ComboBox Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                      ItemsSource="{Binding BuiltInRenamerPatterns}"
                       SelectedItem="{Binding SelectedBuiltInRenamerPattern, Mode=TwoWay}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
@@ -70,9 +80,9 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <Button VerticalAlignment="Top" IsVisible="{Binding IsSelectExifVisible}" Grid.Column="1" Grid.Row="0"
+            <Button Grid.Column="1" Grid.Row="1" VerticalAlignment="Top" IsVisible="{Binding IsSelectExifVisible}"
                     Content="Select Exif metadata" Command="{Binding SelectExifMetadataCommand}" />
-            <views:RenamePreviewer Grid.Column="0" Height="350" Margin="0 40 0 0" Grid.Row="1" Grid.ColumnSpan="2" />
+            <views:RenamePreviewer Grid.Column="0" Grid.Row="2" Height="400" Margin="0 40 0 0" Grid.ColumnSpan="2" />
         </Grid>
 
         <Grid Margin="0" IsVisible="False" x:Name="MainWindowOverlay" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0"
