@@ -66,7 +66,7 @@ public class RenamerService
         }
     }
 
-    public async Task<PreviewModel[]> GetRenamePreviews(string[] filenames, RenamerPatternModel pattern)
+    public async Task<PreviewModel[]> GetRenamePreviews(string[] filenames, RenamerPatternModel pattern, DateType selectedDateType)
     {
         var previews = new PreviewModel[filenames.Length];
         if (pattern.Name == "Choose pattern")
@@ -78,7 +78,7 @@ public class RenamerService
         {
             for (var i = 0; i < filenames.Length; i++)
             {
-                previews[i] = GetRenamePreview(filenames[i], pattern);
+                previews[i] = GetRenamePreview(filenames[i], pattern, selectedDateType);
             }
         });
         
@@ -86,12 +86,22 @@ public class RenamerService
         return previews;
     }
 
-    private PreviewModel GetRenamePreview(string filename, RenamerPatternModel pattern)
+    private PreviewModel GetRenamePreview(string filename, RenamerPatternModel pattern, DateType selectedDateType)
     {
         var file = new FileInfo(filename);
         var extension = file.Extension;
-        var creationTime = GetDateFromExif(filename) ?? file.CreationTime;
-        var newFilename = $"{GetFormattedDate(creationTime, pattern)}";
+        DateTime renameDate = DateTime.MinValue;
+        switch (selectedDateType)
+        {
+            case DateType.Creation : renameDate = file.CreationTime; break;
+            case DateType.Modification : renameDate = file.LastWriteTime; break;
+            case DateType.PhotoTaken : 
+                var exifDate = GetDateFromExif(filename);
+                renameDate = exifDate ?? file.CreationTime;
+                break;
+        }
+        
+        var newFilename = $"{GetFormattedDate(renameDate, pattern)}";
         var folderPath = file.Directory.FullName;
         return new PreviewModel { OldFilename = file.Name, NewFilename = newFilename, FolderPath = folderPath, Extension = extension };
     }

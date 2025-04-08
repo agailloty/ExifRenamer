@@ -22,6 +22,7 @@ public class MainWindowViewModel : ViewModelBase
     private int _totalImagesCount;
     private bool _isRenameEnabled;
     private bool _hasImages;
+    private RenamerDateType _selectedRenamerDateType;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -42,6 +43,7 @@ public class MainWindowViewModel : ViewModelBase
             new("Photo taken date", DateType.PhotoTaken),
             new("Modification date", DateType.Modification),
         };
+        SelectedRenamerDateType = RenamerDateTypes[1];
     }
 
     public ICommand RemoveFolderCommand { get; }
@@ -108,7 +110,18 @@ public class MainWindowViewModel : ViewModelBase
     }
     
     public ObservableCollection<RenamerDateType> RenamerDateTypes { get; set; }
-    public RenamerDateType SelectedRenamerDateType { get; set; }
+
+    public RenamerDateType SelectedRenamerDateType
+    {
+        get => _selectedRenamerDateType;
+        set
+        {
+            if (SetProperty(ref _selectedRenamerDateType, value))
+            {
+                SelectedBuiltInRenamerPattern = _selectedBuiltInRenamerPattern;
+            }
+        }
+    }
 
     private void RemoveFolder(DirectoryInfo? folder)
     {
@@ -138,7 +151,7 @@ public class MainWindowViewModel : ViewModelBase
         foreach (var folder in PathFolders) previews.Add(_folderService.GetImageFiles(folder.FullName));
 
         var files = previews.SelectMany(preview => preview).ToArray();
-        var previewResults = await _renamerService.GetRenamePreviews(files, SelectedBuiltInRenamerPattern);
+        var previewResults = await _renamerService.GetRenamePreviews(files, SelectedBuiltInRenamerPattern, SelectedRenamerDateType.DateType);
         return previewResults;
     }
 
