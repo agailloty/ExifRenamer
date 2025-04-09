@@ -18,11 +18,12 @@ public class MainWindowViewModel : ViewModelBase
     private readonly RenamerService _renamerService;
     private bool _isSelectExifVisible;
     private ObservableCollection<PreviewModel> _renamePreviews;
-    private RenamerPatternModel _selectedBuiltInRenamerPattern;
+    private RenamerPatternModel _selectedDateRenamerPattern;
     private int _totalImagesCount;
     private bool _isRenameEnabled;
     private bool _hasImages;
     private RenamerDateType _selectedRenamerDateType;
+    private string _customFormat;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -32,10 +33,11 @@ public class MainWindowViewModel : ViewModelBase
         PathFolders = new ObservableCollection<DirectoryInfo>();
         RemoveFolderCommand = new RelayCommand<DirectoryInfo>(RemoveFolder);
         SelectExifMetadataCommand = new RelayCommand(OpenExifMetadataDialog);
+        ValidateCustomFormatCommand = new AsyncRelayCommand(UpdateImageCount);
         _exifService = new ExifService();
         _renamerService = new RenamerService();
         BuiltInRenamerPatterns = _renamerService.GetBuiltInRenamerPatterns().AsReadOnly();
-        SelectedBuiltInRenamerPattern = BuiltInRenamerPatterns.First();
+        SelectedDateRenamerPattern = BuiltInRenamerPatterns.First();
         RenameCommand = new RelayCommand(RenameImages);
         RenamerDateTypes = new ObservableCollection<RenamerDateType>
         {
@@ -48,6 +50,7 @@ public class MainWindowViewModel : ViewModelBase
 
     public ICommand RemoveFolderCommand { get; }
     public ICommand AddFolderCommand { get; }
+    public ICommand ValidateCustomFormatCommand { get; }
 
     public ObservableCollection<DirectoryInfo> PathFolders { get; set; }
 
@@ -73,12 +76,12 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand OKCommand { get; }
     public ReadOnlyCollection<RenamerPatternModel> BuiltInRenamerPatterns { get; }
 
-    public RenamerPatternModel SelectedBuiltInRenamerPattern
+    public RenamerPatternModel SelectedDateRenamerPattern
     {
-        get => _selectedBuiltInRenamerPattern;
+        get => _selectedDateRenamerPattern;
         set
         {
-            if (SetProperty(ref _selectedBuiltInRenamerPattern, value))
+            if (SetProperty(ref _selectedDateRenamerPattern, value))
             {
                 if (value != null)
                 {
@@ -118,8 +121,17 @@ public class MainWindowViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedRenamerDateType, value))
             {
-                SelectedBuiltInRenamerPattern = _selectedBuiltInRenamerPattern;
+                SelectedDateRenamerPattern = _selectedDateRenamerPattern;
             }
+        }
+    }
+
+    public string CustomFormat
+    {
+        get => _customFormat;
+        set
+        {
+            SetProperty(ref _customFormat, value);
         }
     }
 
@@ -151,7 +163,16 @@ public class MainWindowViewModel : ViewModelBase
         foreach (var folder in PathFolders) previews.Add(_folderService.GetImageFiles(folder.FullName));
 
         var files = previews.SelectMany(preview => preview).ToArray();
-        var previewResults = await _renamerService.GetRenamePreviews(files, SelectedBuiltInRenamerPattern, SelectedRenamerDateType.DateType);
+        var dateRenamerPattern = SelectedDateRenamerPattern;
+        if (SelectedDateRenamerPattern.Name == "Custom" && !string.IsNullOrEmpty(CustomFormat))
+        {
+            dateRenamerPattern = new RenamerPatternModel
+            {
+                Name = CustomFormat,
+                Description = "Custom format",
+            };
+        }
+        var previewResults = await _renamerService.GetRenamePreviews(files, dateRenamerPattern, SelectedRenamerDateType.DateType);
         return previewResults;
     }
 

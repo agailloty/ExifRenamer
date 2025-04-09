@@ -73,15 +73,20 @@
             
             <ComboBox Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Stretch"
                       ItemsSource="{Binding BuiltInRenamerPatterns}"
-                      SelectedItem="{Binding SelectedBuiltInRenamerPattern, Mode=TwoWay}">
+                      SelectedItem="{Binding SelectedDateRenamerPattern, Mode=TwoWay}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock ToolTip.Tip="{Binding Description}" Text="{Binding Name}" />
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <Button Grid.Column="1" Grid.Row="1" VerticalAlignment="Top" IsVisible="{Binding IsSelectExifVisible}"
-                    Content="Select Exif metadata" Command="{Binding SelectExifMetadataCommand}" />
+            <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
+                <TextBox VerticalAlignment="Top" IsVisible="{Binding IsSelectExifVisible}"
+                         Text="{Binding CustomFormat}" MinWidth="150" />
+                <Button Content="OK" HorizontalAlignment="Right"
+                        Command="{Binding ValidateCustomFormatCommand}"
+                        IsVisible="{Binding IsSelectExifVisible}" />
+            </StackPanel>
             <views:RenamePreviewer Grid.Column="0" Grid.Row="2" Margin="0 40 0 0" Grid.ColumnSpan="2" />
         </Grid>
 
