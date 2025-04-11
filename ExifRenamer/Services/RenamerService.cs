@@ -12,6 +12,12 @@ namespace ExifRenamer.Services;
 
 public class RenamerService
 {
+    private readonly ExifService _exifService;
+
+    public RenamerService()
+    {
+        _exifService = new ExifService();
+    }
     public List<RenamerPatternModel> GetBuiltInRenamerPatterns()
     {
         return new List<RenamerPatternModel>
@@ -96,7 +102,7 @@ public class RenamerService
             case DateType.Creation : renameDate = file.CreationTime; break;
             case DateType.Modification : renameDate = file.LastWriteTime; break;
             case DateType.PhotoTaken : 
-                var exifDate = GetDateFromExif(filename);
+                var exifDate = _exifService.GetDateFromExif(filename);
                 renameDate = exifDate ?? file.CreationTime;
                 break;
         }
@@ -133,14 +139,5 @@ public class RenamerService
             preview.NewFilename = newName;
         }
         return previews;
-    }
-    
-    private DateTime? GetDateFromExif(string filename)
-    {
-        var directories = ImageMetadataReader.ReadMetadata(filename);
-        var exifSubDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
-        var originalDate = exifSubDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
-        var dateFormat = new DateTimeFormatInfo {DateSeparator = ":", TimeSeparator = ":"};
-        return originalDate != null ? DateTime.Parse(originalDate, dateFormat) : null;
     }
 }

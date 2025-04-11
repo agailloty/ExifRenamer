@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
 
 namespace ExifRenamer.Services;
 
@@ -20,5 +24,14 @@ public class ExifService
         }
 
         return null;
+    }
+    
+    public DateTime? GetDateFromExif(string filename)
+    {
+        var directories = ImageMetadataReader.ReadMetadata(filename);
+        var exifSubDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+        var originalDate = exifSubDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
+        var dateFormat = new DateTimeFormatInfo {DateSeparator = ":", TimeSeparator = ":"};
+        return originalDate != null ? DateTime.Parse(originalDate, dateFormat) : null;
     }
 }
