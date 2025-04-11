@@ -34,4 +34,26 @@ public class ExifService
         var dateFormat = new DateTimeFormatInfo {DateSeparator = ":", TimeSeparator = ":"};
         return originalDate != null ? DateTime.Parse(originalDate, dateFormat) : null;
     }
+    
+    public string GetCameraMake(string filename)
+    {   
+        var directories = ImageMetadataReader.ReadMetadata(filename);
+        var exifSubDirectory = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
+        return exifSubDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
+    }
+    
+    public IList<string> RetrieveExifTags(string filename)
+    {
+        var directories = ImageMetadataReader.ReadMetadata(filename);
+        var exifSubDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
+        if (exifSubDirectory == null) return new List<string>();
+        
+        var tags = new List<string>();
+        foreach (var tag in exifSubDirectory.Tags)
+        {
+            tags.Add($"{tag.Name}: {tag.Description}");
+        }
+
+        return tags;
+    }
 }
