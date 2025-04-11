@@ -15,7 +15,7 @@ public class DialogService(MainWindow owner) : IDialogService
     public async Task ShowExifMetadataDialogAsync()
     {
         owner.ShowOverlay();
-        var dialog = new ExifMetadataDialog();
+        var dialog = new ExifMetadataExplorerDialog();
         await dialog.ShowDialog(owner);
         owner.HideOverlay();
     }

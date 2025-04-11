@@ -13,7 +13,6 @@ namespace ExifRenamer.ViewModels;
 public class MainWindowViewModel : ViewModelBase
 {
     private readonly IDialogService _dialogService;
-    private readonly ExifService _exifService;
     private readonly FolderService _folderService;
     private readonly RenamerService _renamerService;
     private bool _isSelectExifVisible;
@@ -24,21 +23,22 @@ public class MainWindowViewModel : ViewModelBase
     private bool _hasImages;
     private RenamerDateType _selectedRenamerDateType;
     private string _customFormat;
+    private bool _isCustomSelected;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
         _dialogService = dialogService;
         _folderService = new FolderService();
-        AddFolderCommand = new RelayCommand(async () => await AddFolder());
+        AddFolderCommand = new AsyncRelayCommand(AddFolder);
         PathFolders = new ObservableCollection<DirectoryInfo>();
-        RemoveFolderCommand = new RelayCommand<DirectoryInfo>(RemoveFolder);
-        SelectExifMetadataCommand = new RelayCommand(OpenExifMetadataDialog);
+        RemoveFolderCommand = new AsyncRelayCommand<DirectoryInfo>(RemoveFolder);
+        SelectExifMetadataCommand = new AsyncRelayCommand(OpenExifMetadataDialog);
         ValidateCustomFormatCommand = new AsyncRelayCommand(UpdateImageCount);
-        _exifService = new ExifService();
         _renamerService = new RenamerService();
         BuiltInRenamerPatterns = _renamerService.GetBuiltInRenamerPatterns().AsReadOnly();
         SelectedDateRenamerPattern = BuiltInRenamerPatterns.First();
-        RenameCommand = new RelayCommand(RenameImages);
+        RenameCommand = new AsyncRelayCommand(RenameImages);
+        ShowExifExplorerCommand = new RelayCommand(ShowExifExplorer);
         RenamerDateTypes = new ObservableCollection<RenamerDateType>
         {
             new("Creation date", DateType.Creation),
@@ -48,10 +48,20 @@ public class MainWindowViewModel : ViewModelBase
         SelectedRenamerDateType = RenamerDateTypes[1];
     }
 
+    #region Commands
     public ICommand RemoveFolderCommand { get; }
     public ICommand AddFolderCommand { get; }
     public ICommand ValidateCustomFormatCommand { get; }
+    
+    public ICommand SelectExifMetadataCommand { get; }
+    public ICommand OKCommand { get; }
+    
+    public ICommand ShowExifExplorerCommand { get; }
+    
+    public ICommand RenameCommand { get; }
+    #endregion
 
+    #region Properties
     public ObservableCollection<DirectoryInfo> PathFolders { get; set; }
 
     public int TotalImagesCount
@@ -71,9 +81,6 @@ public class MainWindowViewModel : ViewModelBase
         get => _hasImages;
         set => SetProperty(ref _hasImages, value);
     }
-
-    public ICommand SelectExifMetadataCommand { get; }
-    public ICommand OKCommand { get; }
     public ReadOnlyCollection<RenamerPatternModel> BuiltInRenamerPatterns { get; }
 
     public RenamerPatternModel SelectedDateRenamerPattern
@@ -83,13 +90,17 @@ public class MainWindowViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedDateRenamerPattern, value))
             {
-                if (value != null)
-                {
-                    IsSelectExifVisible = value.Name == "Custom";
-                }
+                IsSelectExifVisible = value.Name == "Custom";
+                IsCustomSelected = IsSelectExifVisible;
             }
-            UpdateImageCount();
+            Task.Run(UpdateImageCount); 
         }
+    }
+
+    public bool IsCustomSelected
+    {
+        get => _isCustomSelected;
+        set => SetProperty(ref _isCustomSelected, value);
     }
 
     public bool IsSelectExifVisible
@@ -103,9 +114,7 @@ public class MainWindowViewModel : ViewModelBase
         get => _renamePreviews;
         set => SetProperty(ref _renamePreviews, value);
     }
-
-    public ICommand RenameCommand { get; }
-
+    
     public bool IsRenameEnabled
     {
         get => _isRenameEnabled;
@@ -129,17 +138,17 @@ public class MainWindowViewModel : ViewModelBase
     public string CustomFormat
     {
         get => _customFormat;
-        set
-        {
-            SetProperty(ref _customFormat, value);
-        }
+        set => SetProperty(ref _customFormat, value);
     }
-
-    private void RemoveFolder(DirectoryInfo? folder)
+    
+    #endregion
+    
+    #region Private methods
+    private async Task RemoveFolder(DirectoryInfo? folder)
     {
         if (folder == null || !PathFolders.Contains(folder)) return;
         PathFolders.Remove(folder);
-        UpdateImageCount();
+        await UpdateImageCount();
     }
 
 
@@ -152,7 +161,7 @@ public class MainWindowViewModel : ViewModelBase
             if (PathFolders.All(folder => folder.FullName != directory.FullName))
             {
                 PathFolders.Add(new DirectoryInfo(selectedPath));
-                UpdateImageCount();
+                await UpdateImageCount();
             }
         }
     }
@@ -176,14 +185,13 @@ public class MainWindowViewModel : ViewModelBase
         return previewResults;
     }
 
-    private async void OpenExifMetadataDialog()
+    private async Task OpenExifMetadataDialog()
     {
         if (!PathFolders.Any()) return;
         var path = PathFolders.First().FullName;
         var files = _folderService.GetImageFiles(path);
         if (files.Any())
         {
-            var exifMetadata = _exifService.ExtractExifData(files.First());
             await _dialogService.ShowExifMetadataDialogAsync();
         }
     }
@@ -198,7 +206,7 @@ public class MainWindowViewModel : ViewModelBase
         IsBusy = false;
     }
     
-    private void RenameImages()
+    private async Task RenameImages()
     {
         var previews = RenamePreviews;
         foreach (var preview in previews)
@@ -207,6 +215,12 @@ public class MainWindowViewModel : ViewModelBase
             var newPath = Path.Join(preview.FolderPath, preview.NewNameWithExtension);
             File.Move(oldPath, newPath, overwrite:true);
         }
-        UpdateImageCount();
+        await UpdateImageCount();
     }
+    
+    private void ShowExifExplorer()
+    {
+    }
+    
+    #endregion
 }

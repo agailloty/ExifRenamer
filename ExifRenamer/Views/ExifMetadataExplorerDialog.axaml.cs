@@ -2,9 +2,9 @@
 
 namespace ExifRenamer.Views;
 
-public partial class ExifMetadataDialog : Window
+public partial class ExifMetadataExplorerDialog : Window
 {
-    public ExifMetadataDialog()
+    public ExifMetadataExplorerDialog()
     {
         var screen = Screens.Primary;
         InitializeComponent();

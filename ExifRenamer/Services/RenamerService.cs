@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ExifRenamer.Models;
-using MetadataExtractor;
-using MetadataExtractor.Formats.Exif;
 
 namespace ExifRenamer.Services;
 
@@ -60,16 +57,6 @@ public class RenamerService
         if (!file.Exists || newFile.Exists) return false;
         file.MoveTo(newFilename);
         return true;
-    }
-
-    public void BuildFileName(string filename, RenamerPatternModel pattern)
-    {
-        if (pattern.Name == "Date (YY-MM-DD)")
-        {
-            var file = new FileInfo(filename);
-            var date = file.CreationTime;
-            RenameFile(filename, date.ToLongDateString());
-        }
     }
 
     public async Task<PreviewModel[]> GetRenamePreviews(string[] filenames, RenamerPatternModel pattern, DateType selectedDateType)
