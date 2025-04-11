@@ -42,7 +42,7 @@ public class ExifService
         return exifSubDirectory?.GetDescription(ExifDirectoryBase.TagMake) ?? string.Empty;
     }
     
-    public IList<string> RetrieveExifTags(string filename)
+    public List<string> RetrieveExifTags(string filename)
     {
         var directories = ImageMetadataReader.ReadMetadata(filename);
         var exifSubDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();

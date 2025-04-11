@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using ExifRenamer.Common;
@@ -20,7 +21,11 @@ public class ExifMetadataExplorerDialogViewModel
 
         OkCommand = new RelayCommand(OnOkCommand);
         CancelCommand = new RelayCommand(OnCancelCommand);
+        
+        ExifTags = parameter.ExifTags;
     }
+    
+    public List<string> ExifTags { get; set; }
     
     private void OnOkCommand()
     {

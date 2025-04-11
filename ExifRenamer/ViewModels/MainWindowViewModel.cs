@@ -24,6 +24,7 @@ public class MainWindowViewModel : ViewModelBase
     private RenamerDateType _selectedRenamerDateType;
     private string _customFormat;
     private bool _isCustomSelected;
+    private ExifService _exifService;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -39,6 +40,7 @@ public class MainWindowViewModel : ViewModelBase
         SelectedDateRenamerPattern = BuiltInRenamerPatterns.First();
         RenameCommand = new AsyncRelayCommand(RenameImages);
         ShowExifExplorerCommand = new AsyncRelayCommand(OpenExifMetadataDialog);
+        _exifService = new ExifService();
         RenamerDateTypes = new ObservableCollection<RenamerDateType>
         {
             new("Creation date", DateType.Creation),
@@ -192,7 +194,7 @@ public class MainWindowViewModel : ViewModelBase
         var files = _folderService.GetImageFiles(path);
         if (files.Any())
         { 
-            var data = new ExifInput();
+            var data = new ExifInput { ExifTags = _exifService.RetrieveExifTags(files.First()) };
            var res = await _dialogService.ShowExifMetadataDialogAsync(data);
         }
     }

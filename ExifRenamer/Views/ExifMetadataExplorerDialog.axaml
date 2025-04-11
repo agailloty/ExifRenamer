@@ -13,13 +13,22 @@
         ShowInTaskbar="False"
         Title="ExifMetadataDialog">
     <Border>
-        <Grid>
-            <StackPanel>
-                <TextBlock Text="Exif Metadata" FontSize="20" FontWeight="Bold" />
-                <TextBlock Text="The following metadata will be used to rename the files" />
-
-                <Button Content="OK" Command="{Binding OkCommand}" />
+        <StackPanel>
+            <TextBlock Text="Exif Metadata" 
+                     FontSize="16" 
+                     HorizontalAlignment="Center" 
+                     Margin="10" 
+                     Background="Transparent" />
+            
+            <ScrollViewer Height="400" Margin="10">
+                <ListBox ItemsSource="{Binding ExifTags}" />
+            </ScrollViewer>
+            
+            <StackPanel Orientation="Horizontal">
+                <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" Content="OK" Command="{Binding OkCommand}" />
+                <Button VerticalAlignment="Bottom" HorizontalAlignment="Left" Content="Cancel" Command="{Binding CancelCommand}" />
             </StackPanel>
-        </Grid>
+
+        </StackPanel>
     </Border>
 </Window>
