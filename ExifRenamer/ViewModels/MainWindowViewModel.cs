@@ -38,7 +38,7 @@ public class MainWindowViewModel : ViewModelBase
         BuiltInRenamerPatterns = _renamerService.GetBuiltInRenamerPatterns().AsReadOnly();
         SelectedDateRenamerPattern = BuiltInRenamerPatterns.First();
         RenameCommand = new AsyncRelayCommand(RenameImages);
-        ShowExifExplorerCommand = new RelayCommand(ShowExifExplorer);
+        ShowExifExplorerCommand = new AsyncRelayCommand(OpenExifMetadataDialog);
         RenamerDateTypes = new ObservableCollection<RenamerDateType>
         {
             new("Creation date", DateType.Creation),
@@ -191,8 +191,9 @@ public class MainWindowViewModel : ViewModelBase
         var path = PathFolders.First().FullName;
         var files = _folderService.GetImageFiles(path);
         if (files.Any())
-        {
-            await _dialogService.ShowExifMetadataDialogAsync();
+        { 
+            var data = new ExifInput();
+           var res = await _dialogService.ShowExifMetadataDialogAsync(data);
         }
     }
 
@@ -216,10 +217,6 @@ public class MainWindowViewModel : ViewModelBase
             File.Move(oldPath, newPath, overwrite:true);
         }
         await UpdateImageCount();
-    }
-    
-    private void ShowExifExplorer()
-    {
     }
     
     #endregion

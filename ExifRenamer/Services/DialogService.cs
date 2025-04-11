@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using ExifRenamer.ViewModels;
 using ExifRenamer.Views;
 
 namespace ExifRenamer.Services;
@@ -12,11 +13,12 @@ public class DialogService(MainWindow owner) : IDialogService
         return await dialog.ShowAsync(owner);
     }
 
-    public async Task ShowExifMetadataDialogAsync()
+    public async Task<ExifMetadataDialogResult> ShowExifMetadataDialogAsync(ExifInput exifInput)
     {
         owner.ShowOverlay();
-        var dialog = new ExifMetadataExplorerDialog();
-        await dialog.ShowDialog(owner);
+        var dialog = new ExifMetadataExplorerDialog(exifInput);
+        var result = await dialog.ShowDialog<ExifMetadataDialogResult>(owner);
         owner.HideOverlay();
+        return result;
     }
 }
