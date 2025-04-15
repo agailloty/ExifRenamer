@@ -66,30 +66,22 @@ public class ExifService
     {
         var directories = ImageMetadataReader.ReadMetadata(filename);
         var allTags = directories.SelectMany(d => d.Tags).ToList();
-        string result = string.Empty;
         if (!string.IsNullOrEmpty(customFormat))
         {
             string pattern = @"%([^%]+)%";
 
             MatchCollection matches = Regex.Matches(customFormat, pattern);
-            var sb = new StringBuilder();
             foreach (Match match in matches)
             {
                 var tag = match.Value.Replace("%", "");
                 var foundTag = allTags.FirstOrDefault(t => t.Name == tag);
                 if (foundTag != null)
                 {
-                    sb.Append(foundTag.Description ?? string.Empty);
-                }
-                else
-                {
-                    sb.Append(match.Value);
+                    customFormat = customFormat.Replace(match.Value, foundTag.Description ?? string.Empty);
                 }
             }
-        
-            result = sb.ToString();
         }
         
-        return result;
+        return customFormat;
     }
 }

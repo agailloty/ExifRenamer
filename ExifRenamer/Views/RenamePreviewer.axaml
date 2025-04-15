@@ -7,7 +7,7 @@
              x:DataType="vm:MainWindowViewModel"
              x:Class="ExifRenamer.Views.RenamePreviewer">
     <Grid>
-        <ScrollViewer IsVisible="{Binding !IsBusy}">
+        <ScrollViewer IsVisible="{Binding !IsBusy}" HorizontalScrollBarVisibility="Auto">
             <ListBox Background="Transparent" ItemsSource="{Binding RenamePreviews, UpdateSourceTrigger=PropertyChanged}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
