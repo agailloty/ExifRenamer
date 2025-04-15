@@ -71,7 +71,7 @@ public class RenamerService
         {
             for (var i = 0; i < filenames.Length; i++)
             {
-                previews[i] = GetRenamePreview(filenames[i], pattern, selectedDateType);
+                previews[i] = GetCustomRenamePreview(filenames[i], pattern);
             }
         });
         
@@ -98,6 +98,17 @@ public class RenamerService
         var folderPath = file.Directory.FullName;
         return new PreviewModel { OldFilename = file.Name, NewFilename = newFilename, FolderPath = folderPath, Extension = extension };
     }
+
+    private PreviewModel GetCustomRenamePreview(string filename, RenamerPatternModel pattern)
+    {
+        var file = new FileInfo(filename);
+        var extension = file.Extension;
+        
+        var newFilename = _exifService.GetExifTags(pattern.Name, filename);
+        var folderPath = file.Directory.FullName;
+        return new PreviewModel { OldFilename = file.Name, NewFilename = newFilename, FolderPath = folderPath, Extension = extension };
+    }
+    
 
     private string GetFormattedDate(DateTime date, RenamerPatternModel pattern)
     {

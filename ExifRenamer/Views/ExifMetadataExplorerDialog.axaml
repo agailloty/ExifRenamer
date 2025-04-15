@@ -21,7 +21,13 @@
                      Background="Transparent" />
             
             <ScrollViewer Height="400" Margin="10">
-                <ListBox ItemsSource="{Binding ExifTags}" />
+                <ItemsControl ItemsSource="{Binding ExifTags}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Content="{Binding}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
             
             <StackPanel Orientation="Horizontal">

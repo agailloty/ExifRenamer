@@ -92,7 +92,7 @@ public class MainWindowViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedDateRenamerPattern, value))
             {
-                IsSelectExifVisible = value.Name == "Custom";
+                IsSelectExifVisible = value?.Name == "Custom";
                 IsCustomSelected = IsSelectExifVisible;
             }
             Task.Run(UpdateImageCount); 
