@@ -53,15 +53,16 @@
                 </ListBox>
             </ScrollViewer>
         </StackPanel>
-        <Button Grid.Column="0" Grid.Row="3" Content="Add folder" FontSize="20" Command="{Binding  AddFolderCommand}" />
-        <Button Grid.Column="1" Grid.Row="3" IsVisible="{Binding HasImages}" HorizontalAlignment="Right" IsEnabled="{Binding IsRenameEnabled}" FontSize="20" Content="Rename" Command="{Binding RenameCommand}" />
+        <Button Grid.Column="0" Grid.Row="3" Content="ADD FOLDER" FontSize="16" Command="{Binding  AddFolderCommand}" />
+        <Button Grid.Column="1" Grid.Row="3" IsVisible="{Binding HasImages}" HorizontalAlignment="Right" IsEnabled="{Binding IsRenameEnabled}" FontSize="16" Content="RENAME" Command="{Binding RenameCommand}" />
         <StackPanel Grid.Column="1" Grid.Row="3" IsVisible="{Binding HasImages}" VerticalAlignment="Bottom" HorizontalAlignment="Center" Orientation="Horizontal">
-            <TextBlock Text="Total images : " />
+            <TextBlock Text="Image count : " />
             <TextBlock Text="{Binding TotalImagesCount}" />
         </StackPanel>
 
-        <Grid Grid.Column="1" Grid.Row="0" RowSpan="3" IsVisible="{Binding HasImages}" ColumnDefinitions="1*,2*" RowDefinitions="Auto,Auto,2*">
+        <Grid Grid.Column="1" Grid.Row="0" RowSpan="3" IsVisible="{Binding HasImages}" ColumnDefinitions="1*,2*" RowDefinitions="Auto,Auto,3*">
             <ComboBox Grid.Column="0" Grid.Row="0"
+                      Margin="0 2 0 2"
                       ItemsSource="{Binding RenamerDateTypes}"
                       SelectedItem="{Binding SelectedRenamerDateType, Mode=TwoWay}">
                 <ComboBox.ItemTemplate>
@@ -71,26 +72,43 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
             
-            <ComboBox Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Stretch"
-                      ItemsSource="{Binding BuiltInRenamerPatterns}"
-                      SelectedItem="{Binding SelectedDateRenamerPattern, Mode=TwoWay}">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock ToolTip.Tip="{Binding Description}" Text="{Binding Name}" />
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
+            <StackPanel Grid.Column="0" Grid.Row="1">
+                <ComboBox  VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                           ItemsSource="{Binding BuiltInRenamerPatterns}"
+                           SelectedItem="{Binding SelectedDateRenamerPattern, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock ToolTip.Tip="{Binding Description}" Text="{Binding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                
+                <Button Content="Exif Explorer" VerticalAlignment="Bottom" Margin="0 5 0 0"
+                        Command="{Binding ShowExifExplorerCommand}"
+                        IsVisible="{Binding IsCustomSelected}"/>
+            </StackPanel>
+            
             <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
-                <TextBox VerticalAlignment="Top" IsVisible="{Binding IsSelectExifVisible}"
-                         Text="{Binding CustomFormat}" MinWidth="150" />
+                <TextBox Margin="5 0 5 0" VerticalAlignment="Top" IsVisible="{Binding IsSelectExifVisible}"
+                         Text="{Binding CustomFormat}" MinWidth="200" />
                 <Button Content="OK" HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
                         Command="{Binding ValidateCustomFormatCommand}"
                         IsVisible="{Binding IsSelectExifVisible}" />
             </StackPanel>
+            
+            <StackPanel IsVisible="{Binding IsCustomDateFormat}" Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
+                <TextBox Margin="5 0 5 0" VerticalAlignment="Top"
+                         Text="{Binding CustomDateFormat}" MinWidth="200" />
+                <Button Content="OK" HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Command="{Binding ValidateCustomFormatCommand}" />
+            </StackPanel>
+            
             <views:RenamePreviewer Grid.Column="0" Grid.Row="2" Margin="0 40 0 0" Grid.ColumnSpan="2" />
         </Grid>
 
-        <Grid Margin="0" IsVisible="False" x:Name="MainWindowOverlay" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0"
+        <Grid Margin="-5" IsVisible="False" x:Name="MainWindowOverlay" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0"
               Grid.RowSpan="4" />
     </Grid>
 </Window>

@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ExifRenamer.Models;
-using MetadataExtractor;
-using MetadataExtractor.Formats.Exif;
 
 namespace ExifRenamer.Services;
 
 public class RenamerService
 {
+    private readonly ExifService _exifService;
+
+    public RenamerService()
+    {
+        _exifService = new ExifService();
+    }
     public List<RenamerPatternModel> GetBuiltInRenamerPatterns()
     {
         return new List<RenamerPatternModel>
@@ -43,6 +46,7 @@ public class RenamerService
             new() { Name = "MM-DD-YYYY_HHMMSS", Description = "Month-Day-Year HourMinuteSecond (4-digit year)" },
             new() { Name = "Monthname-DD-YY_HHMMSS", Description = "Monthname-Day-Year HourMinuteSecond (2-digit year)" },
             new() { Name = "Monthname-DD-YYYY_HHMMSS", Description = "Monthname-Day-Year HourMinuteSecond (4-digit year)" },
+            new() { Name = "Custom Date Time", Description = "Custom Date Time" , IsCustomDateFormat = true},
             new() { Name = "Custom", Description = "Custom" }
         };
     }
@@ -56,17 +60,7 @@ public class RenamerService
         return true;
     }
 
-    public void BuildFileName(string filename, RenamerPatternModel pattern)
-    {
-        if (pattern.Name == "Date (YY-MM-DD)")
-        {
-            var file = new FileInfo(filename);
-            var date = file.CreationTime;
-            RenameFile(filename, date.ToLongDateString());
-        }
-    }
-
-    public async Task<PreviewModel[]> GetRenamePreviews(string[] filenames, RenamerPatternModel pattern, DateType selectedDateType)
+    public async Task<PreviewModel[]> GetRenamePreviews(string[] filenames, RenamerPatternModel pattern, DateType selectedDateType, bool isCustomMode)
     {
         var previews = new PreviewModel[filenames.Length];
         if (pattern.Name == "Choose pattern")
@@ -78,15 +72,23 @@ public class RenamerService
         {
             for (var i = 0; i < filenames.Length; i++)
             {
-                previews[i] = GetRenamePreview(filenames[i], pattern, selectedDateType);
+                if (isCustomMode)
+                {
+                    previews[i] = GetCustomRenamePreview(filenames[i], pattern);
+                }
+                else
+                {
+                    previews[i] = GetDateRenamePreview(filenames[i], pattern, selectedDateType);
+                }
+                
             }
         });
         
         previews = MakeUniqueFilenames(previews);
         return previews;
     }
-
-    private PreviewModel GetRenamePreview(string filename, RenamerPatternModel pattern, DateType selectedDateType)
+    
+    private PreviewModel GetDateRenamePreview(string filename, RenamerPatternModel pattern, DateType selectedDateType)
     {
         var file = new FileInfo(filename);
         var extension = file.Extension;
@@ -96,7 +98,7 @@ public class RenamerService
             case DateType.Creation : renameDate = file.CreationTime; break;
             case DateType.Modification : renameDate = file.LastWriteTime; break;
             case DateType.PhotoTaken : 
-                var exifDate = GetDateFromExif(filename);
+                var exifDate = _exifService.GetDateFromExif(filename);
                 renameDate = exifDate ?? file.CreationTime;
                 break;
         }
@@ -105,6 +107,17 @@ public class RenamerService
         var folderPath = file.Directory.FullName;
         return new PreviewModel { OldFilename = file.Name, NewFilename = newFilename, FolderPath = folderPath, Extension = extension };
     }
+
+    private PreviewModel GetCustomRenamePreview(string filename, RenamerPatternModel pattern)
+    {
+        var file = new FileInfo(filename);
+        var extension = file.Extension;
+        
+        var newFilename = _exifService.GetExifTags(pattern.Name, filename);
+        var folderPath = file.Directory.FullName;
+        return new PreviewModel { OldFilename = file.Name, NewFilename = newFilename, FolderPath = folderPath, Extension = extension };
+    }
+    
 
     private string GetFormattedDate(DateTime date, RenamerPatternModel pattern)
     {
@@ -133,14 +146,5 @@ public class RenamerService
             preview.NewFilename = newName;
         }
         return previews;
-    }
-    
-    private DateTime? GetDateFromExif(string filename)
-    {
-        var directories = ImageMetadataReader.ReadMetadata(filename);
-        var exifSubDirectory = directories.OfType<ExifSubIfdDirectory>().FirstOrDefault();
-        var originalDate = exifSubDirectory?.GetDescription(ExifDirectoryBase.TagDateTimeOriginal);
-        var dateFormat = new DateTimeFormatInfo {DateSeparator = ":", TimeSeparator = ":"};
-        return originalDate != null ? DateTime.Parse(originalDate, dateFormat) : null;
     }
 }
