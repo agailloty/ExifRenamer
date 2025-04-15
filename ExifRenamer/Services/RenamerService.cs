@@ -46,6 +46,7 @@ public class RenamerService
             new() { Name = "MM-DD-YYYY_HHMMSS", Description = "Month-Day-Year HourMinuteSecond (4-digit year)" },
             new() { Name = "Monthname-DD-YY_HHMMSS", Description = "Monthname-Day-Year HourMinuteSecond (2-digit year)" },
             new() { Name = "Monthname-DD-YYYY_HHMMSS", Description = "Monthname-Day-Year HourMinuteSecond (4-digit year)" },
+            new() { Name = "Custom Date Time", Description = "Custom Date Time" , IsCustomDateFormat = true},
             new() { Name = "Custom", Description = "Custom" }
         };
     }
@@ -86,7 +87,7 @@ public class RenamerService
         previews = MakeUniqueFilenames(previews);
         return previews;
     }
-
+    
     private PreviewModel GetDateRenamePreview(string filename, RenamerPatternModel pattern, DateType selectedDateType)
     {
         var file = new FileInfo(filename);

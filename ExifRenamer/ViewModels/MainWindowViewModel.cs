@@ -25,6 +25,8 @@ public class MainWindowViewModel : ViewModelBase
     private string _customFormat;
     private bool _isCustomSelected;
     private ExifService _exifService;
+    private bool _isCustomDateFormat;
+    private string _customDateFormat;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -94,6 +96,7 @@ public class MainWindowViewModel : ViewModelBase
             {
                 IsSelectExifVisible = value?.Name == "Custom";
                 IsCustomSelected = IsSelectExifVisible;
+                IsCustomDateFormat = value?.Name == "Custom Date Time";
             }
             Task.Run(UpdateImageCount); 
         }
@@ -143,6 +146,19 @@ public class MainWindowViewModel : ViewModelBase
         set => SetProperty(ref _customFormat, value);
     }
     
+    public string CustomDateFormat
+    {
+        get => _customDateFormat;
+        set => SetProperty(ref _customDateFormat, value);
+    }
+
+    public bool IsCustomDateFormat
+    {
+        get => _isCustomDateFormat;
+        set => SetProperty(ref _isCustomDateFormat, value);
+    }
+    
+
     #endregion
     
     #region Private methods
@@ -183,6 +199,17 @@ public class MainWindowViewModel : ViewModelBase
                 Description = "Custom format",
             };
         }
+        
+        if (SelectedDateRenamerPattern.Name == "Custom Date Time" && !string.IsNullOrEmpty(CustomDateFormat))
+        {
+            dateRenamerPattern = new RenamerPatternModel
+            {
+                Name = CustomDateFormat,
+                Description = "Custom format",
+                IsCustomDateFormat = true,  
+            };
+        }
+        
         var previewResults = await _renamerService.GetRenamePreviews(files, dateRenamerPattern, SelectedRenamerDateType.DateType, IsCustomSelected);
         return previewResults;
     }
