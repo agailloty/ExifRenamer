@@ -183,7 +183,7 @@ public class MainWindowViewModel : ViewModelBase
                 Description = "Custom format",
             };
         }
-        var previewResults = await _renamerService.GetRenamePreviews(files, dateRenamerPattern, SelectedRenamerDateType.DateType);
+        var previewResults = await _renamerService.GetRenamePreviews(files, dateRenamerPattern, SelectedRenamerDateType.DateType, IsCustomSelected);
         return previewResults;
     }
 

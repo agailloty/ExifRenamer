@@ -59,7 +59,7 @@ public class RenamerService
         return true;
     }
 
-    public async Task<PreviewModel[]> GetRenamePreviews(string[] filenames, RenamerPatternModel pattern, DateType selectedDateType)
+    public async Task<PreviewModel[]> GetRenamePreviews(string[] filenames, RenamerPatternModel pattern, DateType selectedDateType, bool isCustomMode)
     {
         var previews = new PreviewModel[filenames.Length];
         if (pattern.Name == "Choose pattern")
@@ -71,7 +71,15 @@ public class RenamerService
         {
             for (var i = 0; i < filenames.Length; i++)
             {
-                previews[i] = GetCustomRenamePreview(filenames[i], pattern);
+                if (isCustomMode)
+                {
+                    previews[i] = GetCustomRenamePreview(filenames[i], pattern);
+                }
+                else
+                {
+                    previews[i] = GetDateRenamePreview(filenames[i], pattern, selectedDateType);
+                }
+                
             }
         });
         
@@ -79,7 +87,7 @@ public class RenamerService
         return previews;
     }
 
-    private PreviewModel GetRenamePreview(string filename, RenamerPatternModel pattern, DateType selectedDateType)
+    private PreviewModel GetDateRenamePreview(string filename, RenamerPatternModel pattern, DateType selectedDateType)
     {
         var file = new FileInfo(filename);
         var extension = file.Extension;
