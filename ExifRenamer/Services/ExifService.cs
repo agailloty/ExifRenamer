@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -61,27 +62,96 @@ public class ExifService
 
         return tags;
     }
-    
-    public string GetExifTags(string customFormat, string filename)
+
+    string ParseDateFormat(string dateFormat)
+    {
+        string result = "yyyyMMdd_mmss";
+        if (!string.IsNullOrEmpty(dateFormat))
+        {
+            result = dateFormat.Replace("Y", "y")
+                .Replace("Monthname", "MMMM")
+                .Replace("DD", "dd")
+                .Replace("MMSS", "mmss");
+        }
+        return result;
+    }
+
+    private string InterpolateCustomFormat(string token, string filename)
+    {
+        string result = token;
+        var args = token.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+        string command = args[0];
+        string flag = string.Empty;
+        if (args.Length > 1)
+        {
+            flag = args[1];
+        }
+
+        switch (command.ToLower())
+        {
+            case "datetaken":
+                var dateTaken = GetDateFromExif(filename);
+                result = dateTaken?.ToString(ParseDateFormat(flag));
+                break;
+            case "datecreated":
+                var file = new FileInfo(filename);
+                result = file.CreationTime.ToString(ParseDateFormat(flag));
+                break;
+            case "datemodified":
+                file = new FileInfo(filename);
+                result = file.LastWriteTime.ToString(ParseDateFormat(flag));
+                break;
+            default:
+                var exifTokens = GetExifTokens(filename);
+                var availableTokens = exifTokens.Select(e => e.Key).ToList();
+                if (availableTokens.Contains(command.ToLower()))
+                {
+                    result = exifTokens.FirstOrDefault(e => e.Key == command)?.Tag.Description;
+                }
+
+                break;
+        }
+        
+        return result;
+    }
+
+    private ExifToken[] GetExifTokens(string filename)
     {
         var directories = ImageMetadataReader.ReadMetadata(filename);
         var allTags = directories.SelectMany(d => d.Tags).ToList();
+        var tokens = new List<ExifToken>();
+        foreach (var tag in allTags)
+        {
+            string key = tag.Name.Replace("/", "").Replace("(", "")
+                .Replace(")", "")
+                .Replace(" ", "")
+                .ToLower();
+            var exifToken = new ExifToken
+            {
+                Key = key,
+                Tag = tag
+            };
+            tokens.Add(exifToken);
+        }
+
+        return tokens.ToArray();
+    }
+    
+    public string GetExifTags(string customFormat, string filename)
+    {
+        string result = string.Empty;
         if (!string.IsNullOrEmpty(customFormat))
         {
-            string pattern = @"%([^%]+)%";
+            string pattern = "%([^%]+)%";
 
             MatchCollection matches = Regex.Matches(customFormat, pattern);
             foreach (Match match in matches)
             {
-                var tag = match.Value.Replace("%", "");
-                var foundTag = allTags.FirstOrDefault(t => t.Name == tag);
-                if (foundTag != null)
-                {
-                    customFormat = customFormat.Replace(match.Value, foundTag.Description ?? string.Empty);
-                }
+                var token = match.Value.Replace("%", "");
+                result += InterpolateCustomFormat(token, filename);
             }
         }
         
-        return customFormat;
+        return result;
     }
 }
