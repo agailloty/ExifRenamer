@@ -61,7 +61,7 @@
         </StackPanel>
 
         <Grid Grid.Column="1" Grid.Row="0" RowSpan="3" IsVisible="{Binding HasImages}" ColumnDefinitions="1*,2*" RowDefinitions="Auto,Auto,3*">
-            <ComboBox Grid.Column="0" Grid.Row="0"
+            <ComboBox IsVisible="{Binding !IsCustomSelected}" Grid.Column="0" Grid.Row="0"
                       Margin="0 2 0 2"
                       ItemsSource="{Binding RenamerDateTypes}"
                       SelectedItem="{Binding SelectedRenamerDateType, Mode=TwoWay}">
