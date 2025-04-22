@@ -49,7 +49,15 @@ public class ExifService
         return result;
     }
     
-    public List<string> RetrieveExifTags(string filename)
+    public List<string> RetrieveExifTags(string[] filenames)
+    {
+        return filenames.AsParallel()
+            .SelectMany(RetrieveExifTagsFromFile)
+            .Distinct()
+            .ToList();
+    }
+
+    private List<string> RetrieveExifTagsFromFile(string filename)
     {
         var directories = ImageMetadataReader.ReadMetadata(filename);
         var allTags = directories.SelectMany(d => d.Tags).ToList();
@@ -133,8 +141,22 @@ public class ExifService
             };
             tokens.Add(exifToken);
         }
-
+        //tokens.Sort();
         return tokens.ToArray();
+    }
+    
+    public string TokenizeExifName(string exifName)
+    {
+        string result = exifName;
+        if (!string.IsNullOrEmpty(exifName))
+        {
+            result = exifName.Replace("/", "").Replace("(", "")
+                .Replace(")", "")
+                .Replace(" ", "")
+                .ToLower();
+            result = "%" + result + "%";
+        }
+        return result;
     }
     
     public string GetExifTags(string customFormat, string filename)

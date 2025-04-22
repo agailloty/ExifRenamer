@@ -89,8 +89,7 @@
             </StackPanel>
             
             <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
-                <TextBox Margin="5 0 5 0" VerticalAlignment="Top" IsVisible="{Binding IsSelectExifVisible}"
-                         Text="{Binding CustomFormat}" MinWidth="200" />
+                <TextBox Margin="5 0 5 0" VerticalAlignment="Top" IsVisible="{Binding IsSelectExifVisible}" Text="{Binding CustomFormat}" MinWidth="250" MaxWidth="350" />
                 <Button Content="OK" HorizontalAlignment="Right"
                         VerticalAlignment="Top"
                         Command="{Binding ValidateCustomFormatCommand}"
@@ -99,7 +98,7 @@
             
             <StackPanel IsVisible="{Binding IsCustomDateFormat}" Grid.Column="1" Grid.Row="1" Orientation="Horizontal">
                 <TextBox Margin="5 0 5 0" VerticalAlignment="Top"
-                         Text="{Binding CustomDateFormat}" MinWidth="200" />
+                         Text="{Binding CustomDateFormat}" MinWidth="250" MaxWidth="350" />
                 <Button Content="OK" HorizontalAlignment="Right"
                         VerticalAlignment="Top"
                         Command="{Binding ValidateCustomFormatCommand}" />

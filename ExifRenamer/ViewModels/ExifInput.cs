@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace ExifRenamer.ViewModels;
 
 public class ExifInput
 {
-    public List<string> ExifTags { get; set; }
+    public ObservableCollection<ExifTokenItemViewModel> ExifTags { get; set; }
 }

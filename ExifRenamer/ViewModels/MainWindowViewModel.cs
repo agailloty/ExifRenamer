@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
+using ExifRenamer.Common;
 using ExifRenamer.Models;
 using ExifRenamer.Services;
 
@@ -221,8 +222,26 @@ public class MainWindowViewModel : ViewModelBase
         var files = _folderService.GetImageFiles(path);
         if (files.Any())
         { 
-            var data = new ExifInput { ExifTags = _exifService.RetrieveExifTags(files.First()) };
+              var exifTags = _exifService.RetrieveExifTags(files);
+              var tagItems = new ObservableCollection<ExifTokenItemViewModel>();
+                foreach (var tag in exifTags)
+                {
+                    var tagItem = new ExifTokenItemViewModel
+                    {
+                        TagName = tag,
+                        TagKey = _exifService.TokenizeExifName(tag),
+                        IsSelected = false,
+                        IsEnabled = true,
+                    };
+                    tagItems.Add(tagItem);
+                }
+            var data = new ExifInput { ExifTags = tagItems };
            var res = await _dialogService.ShowExifMetadataDialogAsync(data);
+            if (res.ClosingResult == ClosingResult.Ok)
+            {
+                var selectedTags = res.ExifTokens.Select(e => e.TagKey).ToList();
+                CustomFormat = string.Join('_', selectedTags);
+            }
         }
     }
 

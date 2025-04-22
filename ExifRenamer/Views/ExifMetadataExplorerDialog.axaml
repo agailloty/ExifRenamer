@@ -14,24 +14,24 @@
         Title="ExifMetadataDialog">
     <Border>
         <StackPanel>
-            <TextBlock Text="Exif Metadata" 
+            <TextBlock Text="Available Exif Metadata" 
                      FontSize="16" 
                      HorizontalAlignment="Center" 
                      Margin="10" 
                      Background="Transparent" />
             
-            <ScrollViewer Height="400" Margin="10">
+            <ScrollViewer Height="410" Margin="20 10 0 5">
                 <ItemsControl ItemsSource="{Binding ExifTags}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <CheckBox Content="{Binding}" />
+                            <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding TagName}" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
             
-            <StackPanel Orientation="Horizontal">
-                <Button VerticalAlignment="Bottom" HorizontalAlignment="Right" Content="OK" Command="{Binding OkCommand}" />
+            <StackPanel HorizontalAlignment="Right" Margin="10" Orientation="Horizontal">
+                <Button Margin="0 0 10 0" VerticalAlignment="Bottom" Background="Green" HorizontalAlignment="Right" Content="OK" Command="{Binding OkCommand}" />
                 <Button VerticalAlignment="Bottom" HorizontalAlignment="Left" Content="Cancel" Command="{Binding CancelCommand}" />
             </StackPanel>
 
