@@ -237,7 +237,7 @@ public class MainWindowViewModel : ViewModelBase
                 }
             var data = new ExifInput { ExifTags = tagItems };
            var res = await _dialogService.ShowExifMetadataDialogAsync(data);
-            if (res.ClosingResult == ClosingResult.Ok)
+            if (res != null && res.ClosingResult == ClosingResult.Ok)
             {
                 var selectedTags = res.ExifTokens.Select(e => e.TagKey).ToList();
                 CustomFormat = string.Join('_', selectedTags);
