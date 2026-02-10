@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using ExifRenamer.Models;
 using MetadataExtractor;
@@ -13,8 +12,6 @@ namespace ExifRenamer.Services;
 
 public class ExifService
 {
-    private readonly IList<string> _existingExifs;
-
     public string? GetExifValue(string path, int tag)
     {
         var directories = ImageMetadataReader.ReadMetadata(path);
@@ -86,7 +83,7 @@ public class ExifService
 
     private string InterpolateCustomFormat(string token, string filename)
     {
-        string result = token;
+        string? result = token;
         var args = token.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
         string command = args[0];
         string flag = string.Empty;

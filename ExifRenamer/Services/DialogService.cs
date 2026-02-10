@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using ExifRenamer.ViewModels;
 using ExifRenamer.Views;
 
@@ -9,8 +9,12 @@ public class DialogService(MainWindow owner) : IDialogService
 {
     public async Task<string?> ShowFolderBrowserDialogAsync()
     {
-        var dialog = new OpenFolderDialog();
-        return await dialog.ShowAsync(owner);
+        var folders = await owner.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            AllowMultiple = false
+        });
+        
+        return folders.Count > 0 ? folders[0].Path.LocalPath : null;
     }
 
     public async Task<ExifMetadataDialogResult> ShowExifMetadataDialogAsync(ExifInput exifInput)
