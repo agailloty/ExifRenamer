@@ -5,7 +5,7 @@ namespace ExifRenamer.ViewModels;
 public class VideoCompressionJobViewModel : ViewModelBase
 {
     private VideoCompressionJobStatus _status;
-    private string _statusText = "⏳ En attente";
+    private string _statusText = "⏳ Queued";
     private long _inputSize;
     private long _outputSize;
     private string? _errorMessage;
@@ -23,12 +23,12 @@ public class VideoCompressionJobViewModel : ViewModelBase
             if (!SetProperty(ref _status, value)) return;
             StatusText = value switch
             {
-                VideoCompressionJobStatus.Queued      => "⏳ En attente",
-                VideoCompressionJobStatus.Processing  => "⟳ En cours...",
+                VideoCompressionJobStatus.Queued      => "⏳ Queued",
+                VideoCompressionJobStatus.Processing  => "⟳ Processing...",
                 VideoCompressionJobStatus.Done        => $"✓ {ReductionText}",
-                VideoCompressionJobStatus.Failed      => $"✗ Erreur",
-                VideoCompressionJobStatus.Skipped     => "— Ignoré",
-                VideoCompressionJobStatus.Cancelled   => "✕ Annulé",
+                VideoCompressionJobStatus.Failed      => "✗ Error",
+                VideoCompressionJobStatus.Skipped     => "— Skipped",
+                VideoCompressionJobStatus.Cancelled   => "✕ Cancelled",
                 _                                     => string.Empty
             };
             OnPropertyChanged(nameof(IsProcessing));

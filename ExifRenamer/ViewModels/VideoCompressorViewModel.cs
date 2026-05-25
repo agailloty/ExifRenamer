@@ -73,7 +73,7 @@ public partial class VideoCompressorViewModel : ViewModelBase
         _settings = settings;
 
         Presets = BuildPresets();
-        _selectedPreset = Presets[2]; // Équilibré by default
+        _selectedPreset = Presets[2]; // Balanced by default
 
         AddFolderCommand = new AsyncRelayCommand(AddFolderAsync);
         RemoveFolderCommand = new RelayCommand<DirectoryInfo>(RemoveFolder);
@@ -102,7 +102,15 @@ public partial class VideoCompressorViewModel : ViewModelBase
 
     private void RemoveFolder(DirectoryInfo? folder)
     {
-        if (folder is not null) Folders.Remove(folder);
+        if (folder is null) return;
+        Folders.Remove(folder);
+        var prefix = folder.FullName.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                     + Path.DirectorySeparatorChar;
+        var toRemove = Jobs
+            .Where(j => j.InputPath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        foreach (var job in toRemove)
+            Jobs.Remove(job);
     }
 
     private async Task StartCompressionAsync()
@@ -124,12 +132,12 @@ public partial class VideoCompressorViewModel : ViewModelBase
 
         if (TotalCount == 0)
         {
-            StatusMessage = "Aucune vidéo trouvée dans les dossiers sélectionnés.";
+            StatusMessage = "No videos found in the selected folders.";
             IsRunning = false;
             return;
         }
 
-        StatusMessage = $"0 / {TotalCount} fichiers traités";
+        StatusMessage = $"0 / {TotalCount} files processed";
 
         // Build job list upfront
         foreach (var file in videoFiles)
@@ -158,7 +166,7 @@ public partial class VideoCompressorViewModel : ViewModelBase
 
             var job = Jobs[i];
             job.Status = VideoCompressionJobStatus.Processing;
-            StatusMessage = $"Compression de {job.InputFilename}...";
+            StatusMessage = $"Compressing {job.InputFilename}...";
 
             try
             {
@@ -196,14 +204,14 @@ public partial class VideoCompressorViewModel : ViewModelBase
             }
 
             ProcessedCount++;
-            StatusMessage = $"{ProcessedCount} / {TotalCount} fichiers traités";
+            StatusMessage = $"{ProcessedCount} / {TotalCount} files processed";
         }
 
         var doneCount = Jobs.Count(j => j.Status == VideoCompressionJobStatus.Done);
         var failedCount = Jobs.Count(j => j.Status == VideoCompressionJobStatus.Failed);
         StatusMessage = failedCount > 0
-            ? $"Terminé — {doneCount} compressé(s), {failedCount} erreur(s) sur {TotalCount}"
-            : $"Terminé — {doneCount} fichier(s) compressé(s) sur {TotalCount}";
+            ? $"Done — {doneCount} compressed, {failedCount} error(s) out of {TotalCount}"
+            : $"Done — {doneCount} file(s) compressed out of {TotalCount}";
 
         IsRunning = false;
         _cts.Dispose();
@@ -226,13 +234,13 @@ public partial class VideoCompressorViewModel : ViewModelBase
     private static IReadOnlyList<VideoCompressionPreset> BuildPresets() =>
         new List<VideoCompressionPreset>
         {
-            new() { Name = "Très haute qualité",  Description = "CRF 18 · slow — qualité quasi-originale, fichiers volumineux",        Crf = 18, FfmpegPreset = "slow"      },
-            new() { Name = "Haute qualité",        Description = "CRF 22 · medium — excellente qualité, bonne compression",             Crf = 22, FfmpegPreset = "medium"    },
-            new() { Name = "Équilibré",            Description = "CRF 27 · veryfast — bon compromis qualité / taille (recommandé)",     Crf = 27, FfmpegPreset = "veryfast"  },
-            new() { Name = "Taille réduite",       Description = "CRF 30 · veryfast — fichiers légers, légère perte de qualité",        Crf = 30, FfmpegPreset = "veryfast"  },
-            new() { Name = "Taille minimale",      Description = "CRF 36 · ultrafast — compression maximale, qualité réduite",          Crf = 36, FfmpegPreset = "ultrafast" },
-            new() { Name = "Full HD (1080p)",      Description = "CRF 23 · veryfast — redimensionne en 1920×... (résolution ≥ 1080p)",  Crf = 23, FfmpegPreset = "veryfast",  ScaleFilter = "1920:-2" },
-            new() { Name = "HD (720p)",            Description = "CRF 23 · veryfast — redimensionne en 1280×... (résolution ≥ 720p)",   Crf = 23, FfmpegPreset = "veryfast",  ScaleFilter = "1280:-2" },
-            new() { Name = "Réseaux sociaux",      Description = "CRF 28 · veryfast — 720p optimisé pour le partage en ligne",          Crf = 28, FfmpegPreset = "veryfast",  ScaleFilter = "1280:-2" },
+            new() { Name = "Very high quality", Description = "CRF 18 · slow — near-original quality, large files",                Crf = 18, FfmpegPreset = "slow"      },
+            new() { Name = "High quality",         Description = "CRF 22 · medium — excellent quality, good compression",               Crf = 22, FfmpegPreset = "medium"    },
+            new() { Name = "Balanced",             Description = "CRF 27 · veryfast — good quality/size trade-off (recommended)",       Crf = 27, FfmpegPreset = "veryfast"  },
+            new() { Name = "Reduced size",         Description = "CRF 30 · veryfast — lighter files, slight quality loss",              Crf = 30, FfmpegPreset = "veryfast"  },
+            new() { Name = "Minimum size",         Description = "CRF 36 · ultrafast — maximum compression, reduced quality",           Crf = 36, FfmpegPreset = "ultrafast" },
+            new() { Name = "Full HD (1080p)",      Description = "CRF 23 · veryfast — scales to 1920×… (source ≥ 1080p)",              Crf = 23, FfmpegPreset = "veryfast",  ScaleFilter = "1920:-2" },
+            new() { Name = "HD (720p)",            Description = "CRF 23 · veryfast — scales to 1280×… (source ≥ 720p)",               Crf = 23, FfmpegPreset = "veryfast",  ScaleFilter = "1280:-2" },
+            new() { Name = "Social media",         Description = "CRF 28 · veryfast — 720p optimised for online sharing",               Crf = 28, FfmpegPreset = "veryfast",  ScaleFilter = "1280:-2" },
         }.AsReadOnly();
 }

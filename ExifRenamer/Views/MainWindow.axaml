@@ -45,7 +45,7 @@
 
                     <TextBox Grid.Column="1"
                              Text="{Binding Settings.FfmpegPath, Mode=TwoWay}"
-                             PlaceholderText="Chemin vers ffmpeg.exe…"
+                             PlaceholderText="Path to ffmpeg.exe…"
                              VerticalAlignment="Center" />
 
                     <TextBlock Grid.Column="2"
@@ -55,7 +55,7 @@
                                IsVisible="{Binding Settings.IsFfmpegConfigured}"
                                Text="✓"
                                Foreground="Green"
-                               ToolTip.Tip="ffmpeg trouvé et valide" />
+                               ToolTip.Tip="ffmpeg found and valid" />
                     <TextBlock Grid.Column="2"
                                Margin="8 0 0 0"
                                VerticalAlignment="Center"
@@ -63,11 +63,11 @@
                                IsVisible="{Binding !Settings.IsFfmpegConfigured}"
                                Text="✗"
                                Foreground="OrangeRed"
-                               ToolTip.Tip="Chemin ffmpeg non défini ou invalide — l'onglet vidéo sera désactivé" />
+                               ToolTip.Tip="ffmpeg path not set or invalid — the video tab will be disabled" />
 
                     <Button Grid.Column="3"
                             Margin="6 0 0 0"
-                            Content="Parcourir…"
+                            Content="Browse…"
                             Command="{Binding Settings.BrowseFfmpegCommand}" />
                 </Grid>
             </Border>
@@ -76,7 +76,7 @@
             <TabControl>
 
                 <!-- Tab 1 : Photo Renamer -->
-                <TabItem Header="📷  Renommer les photos">
+                <TabItem Header="📷  Rename photos">
                     <Grid Margin="5" ColumnDefinitions="*,2*" RowDefinitions="*,5*,*,Auto">
 
                         <StackPanel Grid.Column="0" Grid.Row="1" Margin="0 0 30 0" Grid.RowSpan="2">
@@ -194,7 +194,7 @@
                 </TabItem>
 
                 <!-- Tab 2 : Video Compressor -->
-                <TabItem Header="🎬  Compresser les vidéos"
+                <TabItem Header="🎬  Compress videos"
                          IsEnabled="{Binding Settings.IsFfmpegConfigured}">
                     <views:VideoCompressorView DataContext="{Binding VideoCompressor}" />
                 </TabItem>
