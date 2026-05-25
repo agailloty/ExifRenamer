@@ -51,6 +51,11 @@ public class MainWindowViewModel : ViewModelBase
             new("Modification date", DateType.Modification),
         };
         SelectedRenamerDateType = RenamerDateTypes[1];
+
+        var settingsService = new SettingsService();
+        Settings = new SettingsViewModel(settingsService, dialogService);
+        VideoCompressor = new VideoCompressorViewModel(
+            new VideoCompressorService(), dialogService, Settings);
     }
 
     #region Commands
@@ -62,11 +67,14 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand? OKCommand { get; }
     
     public ICommand ShowExifExplorerCommand { get; }
-    
+
     public ICommand RenameCommand { get; }
     #endregion
 
     #region Properties
+    public SettingsViewModel Settings { get; }
+    public VideoCompressorViewModel VideoCompressor { get; }
+
     public ObservableCollection<DirectoryInfo> PathFolders { get; set; }
 
     public int TotalImagesCount

@@ -17,6 +17,20 @@ public class DialogService(MainWindow owner) : IDialogService
         return folders.Count > 0 ? folders[0].Path.LocalPath : null;
     }
 
+    public async Task<string?> ShowFilePickerAsync(string title, string[] patterns)
+    {
+        var files = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = title,
+            AllowMultiple = false,
+            FileTypeFilter = new[]
+            {
+                new FilePickerFileType("Executable") { Patterns = patterns }
+            }
+        });
+        return files.Count > 0 ? files[0].Path.LocalPath : null;
+    }
+
     public async Task<ExifMetadataDialogResult> ShowExifMetadataDialogAsync(ExifInput exifInput)
     {
         owner.ShowOverlay();
