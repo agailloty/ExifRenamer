@@ -12,8 +12,8 @@ public class ExifTokenItemViewModel : ViewModelBase
         get => _isSelected;
         set => SetProperty(ref _isSelected, value);
     }
-    public string TagName { get; set; }
-    public string TagKey { get; set; }
+    public required string TagName { get; set; }
+    public required string TagKey { get; set; }
     public bool IsEnabled
     {
         get => _isEnabled;

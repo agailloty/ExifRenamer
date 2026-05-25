@@ -104,7 +104,7 @@ public class RenamerService
         }
         
         var newFilename = $"{GetFormattedDate(renameDate, pattern)}";
-        var folderPath = file.Directory.FullName;
+        var folderPath = file.Directory?.FullName ?? string.Empty;
         return new PreviewModel { OldFilename = file.Name, NewFilename = newFilename, FolderPath = folderPath, Extension = extension };
     }
 
@@ -114,7 +114,7 @@ public class RenamerService
         var extension = file.Extension;
         
         var newFilename = _exifService.GetExifTags(pattern.Name, filename);
-        var folderPath = file.Directory.FullName;
+        var folderPath = file.Directory?.FullName ?? string.Empty;
         return new PreviewModel { OldFilename = file.Name, NewFilename = newFilename, FolderPath = folderPath, Extension = extension };
     }
     
@@ -135,7 +135,7 @@ public class RenamerService
         var uniqueFilenames = new List<string>();
         foreach (var preview in previews)
         {
-            var newName = preview.NewFilename;
+            var newName = preview.NewFilename ?? string.Empty;
             var i = 1;
             while (uniqueFilenames.Contains(newName))
             {

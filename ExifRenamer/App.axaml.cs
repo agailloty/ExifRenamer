@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using ExifRenamer.Services;
 using ExifRenamer.ViewModels;
@@ -19,12 +18,10 @@ public class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Line below is needed to remove Avalonia data validation.
-            // Without this line you will get duplicate validations from both Avalonia and CT
-            BindingPlugins.DataValidators.RemoveAt(0);
-            desktop.MainWindow = new MainWindow();
+            var mainWindow = new MainWindow();
+            desktop.MainWindow = mainWindow;
             desktop.MainWindow.DataContext =
-                new MainWindowViewModel(new DialogService(desktop.MainWindow as MainWindow));
+                new MainWindowViewModel(new DialogService(mainWindow));
         }
 
         base.OnFrameworkInitializationCompleted();

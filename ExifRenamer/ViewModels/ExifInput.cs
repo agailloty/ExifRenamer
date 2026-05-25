@@ -5,5 +5,5 @@ namespace ExifRenamer.ViewModels;
 
 public class ExifInput
 {
-    public ObservableCollection<ExifTokenItemViewModel> ExifTags { get; set; }
+    public ObservableCollection<ExifTokenItemViewModel> ExifTags { get; set; } = new();
 }

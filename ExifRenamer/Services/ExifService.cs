@@ -117,7 +117,7 @@ public class ExifService
                 break;
         }
         
-        return result;
+        return result ?? string.Empty;
     }
 
     private ExifToken[] GetExifTokens(string filename)

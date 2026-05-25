@@ -4,6 +4,6 @@ namespace ExifRenamer.Models;
 
 public class ExifToken
 {
-    public string Key { get; set; }
-    public Tag Tag { get; set; }
+    public required string Key { get; set; }
+    public required Tag Tag { get; set; }
 }

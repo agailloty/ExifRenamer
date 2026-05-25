@@ -17,17 +17,17 @@ public class MainWindowViewModel : ViewModelBase
     private readonly FolderService _folderService;
     private readonly RenamerService _renamerService;
     private bool _isSelectExifVisible;
-    private ObservableCollection<PreviewModel> _renamePreviews;
-    private RenamerPatternModel _selectedDateRenamerPattern;
+    private ObservableCollection<PreviewModel> _renamePreviews = new();
+    private RenamerPatternModel _selectedDateRenamerPattern = null!;
     private int _totalImagesCount;
     private bool _isRenameEnabled;
     private bool _hasImages;
-    private RenamerDateType _selectedRenamerDateType;
-    private string _customFormat;
+    private RenamerDateType _selectedRenamerDateType = null!;
+    private string _customFormat = string.Empty;
     private bool _isCustomSelected;
     private ExifService _exifService;
     private bool _isCustomDateFormat;
-    private string _customDateFormat;
+    private string _customDateFormat = string.Empty;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -59,7 +59,7 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand ValidateCustomFormatCommand { get; }
     
     public ICommand SelectExifMetadataCommand { get; }
-    public ICommand OKCommand { get; }
+    public ICommand? OKCommand { get; }
     
     public ICommand ShowExifExplorerCommand { get; }
     
