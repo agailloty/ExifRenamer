@@ -47,7 +47,7 @@ public class VideoCompressorService
     {
         var inputFile = new FileInfo(inputPath);
         if (!inputFile.Exists)
-            return new VideoCompressionResult { Success = false, ErrorMessage = "Fichier source introuvable." };
+            return new VideoCompressionResult { Success = false, ErrorMessage = "Source file not found." };
 
         var inputSize = inputFile.Length;
         var args = BuildArguments(inputPath, outputPath, preset);
@@ -65,7 +65,7 @@ public class VideoCompressorService
         try
         {
             using var process = Process.Start(processInfo)
-                ?? throw new InvalidOperationException("Impossible de démarrer ffmpeg.");
+                ?? throw new InvalidOperationException("Failed to start ffmpeg.");
 
             // Read stderr for progress lines without blocking
             _ = Task.Run(async () =>
@@ -95,7 +95,7 @@ public class VideoCompressorService
             return new VideoCompressionResult
             {
                 Success = false,
-                ErrorMessage = "Le fichier de sortie n'a pas été créé."
+                ErrorMessage = "Output file was not created."
             };
         }
         catch (OperationCanceledException)
@@ -122,7 +122,11 @@ public class VideoCompressorService
             "-acodec", "copy",
             "-threads", "4",
             "-loglevel", "error",
-            "-map_metadata", "0"
+            // Preserve all metadata: global tags, chapter markers, and per-stream tags
+            "-map_metadata", "0",
+            "-map_chapters", "0",
+            "-map_metadata:s:v", "0:s:v",
+            "-map_metadata:s:a", "0:s:a"
         };
 
         if (!string.IsNullOrEmpty(preset.ScaleFilter))
