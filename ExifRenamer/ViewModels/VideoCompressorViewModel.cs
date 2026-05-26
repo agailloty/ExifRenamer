@@ -44,6 +44,9 @@ public partial class VideoCompressorViewModel : ViewModelBase
     [ObservableProperty]
     private int _totalCount;
 
+    [ObservableProperty]
+    private bool _includeSubfolders;
+
     // ── Collections ──────────────────────────────────────────────────────────
 
     public ObservableCollection<DirectoryInfo> Folders { get; } = new();
@@ -126,7 +129,7 @@ public partial class VideoCompressorViewModel : ViewModelBase
 
     private void ScanAndAddJobs(DirectoryInfo folder)
     {
-        var files = _compressorService.GetVideoFiles(new[] { folder.FullName });
+        var files = _compressorService.GetVideoFiles(new[] { folder.FullName }, IncludeSubfolders);
         foreach (var file in files)
         {
             if (Jobs.Any(j => j.InputPath.Equals(file, StringComparison.OrdinalIgnoreCase)))
@@ -242,6 +245,13 @@ public partial class VideoCompressorViewModel : ViewModelBase
         ((RelayCommand)CancelCommand).NotifyCanExecuteChanged();
         foreach (var job in Jobs)
             job.IsPresetEditable = !value;
+    }
+
+    partial void OnIncludeSubfoldersChanged(bool value)
+    {
+        Jobs.Clear();
+        foreach (var folder in Folders)
+            ScanAndAddJobs(folder);
     }
 
     // ── Preset definitions ────────────────────────────────────────────────────

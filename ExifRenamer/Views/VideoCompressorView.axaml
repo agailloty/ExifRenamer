@@ -45,6 +45,9 @@
                 </ScrollViewer>
                 <Button Content="ADD FOLDER" Margin="0 10 0 0"
                         Command="{Binding AddFolderCommand}" />
+                <CheckBox Content="Include subfolders"
+                          IsChecked="{Binding IncludeSubfolders, Mode=TwoWay}"
+                          Margin="0 6 0 0" />
             </StackPanel>
 
             <!-- Right column : compression options -->

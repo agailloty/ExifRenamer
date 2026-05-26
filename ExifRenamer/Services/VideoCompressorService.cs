@@ -22,13 +22,14 @@ public class VideoCompressorService
     private static readonly string[] VideoExtensions =
         { ".mp4", ".mov", ".avi", ".mkv", ".wmv", ".flv", ".m4v", ".webm" };
 
-    public string[] GetVideoFiles(IEnumerable<string> folderPaths)
+    public string[] GetVideoFiles(IEnumerable<string> folderPaths, bool includeSubfolders = false)
     {
+        var option = includeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
         var files = new List<string>();
         foreach (var folder in folderPaths)
         {
             if (!Directory.Exists(folder)) continue;
-            foreach (var file in Directory.GetFiles(folder, "*", SearchOption.TopDirectoryOnly))
+            foreach (var file in Directory.GetFiles(folder, "*", option))
             {
                 if (VideoExtensions.Contains(Path.GetExtension(file).ToLowerInvariant()))
                     files.Add(file);

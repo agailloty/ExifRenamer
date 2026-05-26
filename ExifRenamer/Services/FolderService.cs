@@ -5,17 +5,19 @@ namespace ExifRenamer.Services;
 
 public class FolderService
 {
-    public int GetImageFilesCount(string folderPath)
+    public int GetImageFilesCount(string folderPath, bool includeSubfolders = false)
     {
         var imageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff" };
-        return Directory.GetFiles(folderPath)
+        var option = includeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+        return Directory.GetFiles(folderPath, "*", option)
             .Count(file => imageExtensions.Contains(Path.GetExtension(file).ToLower()));
     }
 
-    public string[] GetImageFiles(string folderPath)
+    public string[] GetImageFiles(string folderPath, bool includeSubfolders = false)
     {
         var imageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff" };
-        return Directory.GetFiles(folderPath)
+        var option = includeSubfolders ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+        return Directory.GetFiles(folderPath, "*", option)
             .Where(file => imageExtensions.Contains(Path.GetExtension(file).ToLower()))
             .ToArray();
     }
