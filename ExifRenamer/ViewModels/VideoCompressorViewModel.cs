@@ -54,12 +54,13 @@ public partial class VideoCompressorViewModel : ViewModelBase
 
     public ICommand AddFolderCommand { get; }
     public ICommand RemoveFolderCommand { get; }
+    public ICommand RemoveJobCommand { get; }
     public ICommand StartCommand { get; }
     public ICommand CancelCommand { get; }
 
     // ── Computed ─────────────────────────────────────────────────────────────
 
-    public bool CanStart => Folders.Count > 0 && !IsRunning;
+    public bool CanStart => Jobs.Count > 0 && !IsRunning;
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -77,10 +78,17 @@ public partial class VideoCompressorViewModel : ViewModelBase
 
         AddFolderCommand = new AsyncRelayCommand(AddFolderAsync);
         RemoveFolderCommand = new RelayCommand<DirectoryInfo>(RemoveFolder);
+        RemoveJobCommand = new RelayCommand<VideoCompressionJobViewModel>(job => { if (job is not null) Jobs.Remove(job); });
         StartCommand = new AsyncRelayCommand(StartCompressionAsync, () => CanStart);
         CancelCommand = new RelayCommand(CancelCompression, () => IsRunning);
 
         Folders.CollectionChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(CanStart));
+            ((AsyncRelayCommand)StartCommand).NotifyCanExecuteChanged();
+        };
+
+        Jobs.CollectionChanged += (_, _) =>
         {
             OnPropertyChanged(nameof(CanStart));
             ((AsyncRelayCommand)StartCommand).NotifyCanExecuteChanged();
@@ -96,7 +104,10 @@ public partial class VideoCompressorViewModel : ViewModelBase
         {
             var dir = new DirectoryInfo(path);
             if (Folders.All(f => f.FullName != dir.FullName))
+            {
                 Folders.Add(dir);
+                ScanAndAddJobs(dir);
+            }
         }
     }
 
@@ -113,51 +124,53 @@ public partial class VideoCompressorViewModel : ViewModelBase
             Jobs.Remove(job);
     }
 
+    private void ScanAndAddJobs(DirectoryInfo folder)
+    {
+        var files = _compressorService.GetVideoFiles(new[] { folder.FullName });
+        foreach (var file in files)
+        {
+            if (Jobs.Any(j => j.InputPath.Equals(file, StringComparison.OrdinalIgnoreCase)))
+                continue;
+            var info = new FileInfo(file);
+            Jobs.Add(new VideoCompressionJobViewModel
+            {
+                InputFilename = info.Name,
+                InputPath = file,
+                Presets = Presets,
+                SelectedPreset = SelectedPreset
+            });
+        }
+    }
+
     private async Task StartCompressionAsync()
     {
-        if (string.IsNullOrEmpty(_settings.FfmpegPath)) return;
+        if (string.IsNullOrEmpty(_settings.FfmpegPath) || Jobs.Count == 0) return;
 
         _cts = new CancellationTokenSource();
         IsRunning = true;
-        Jobs.Clear();
 
         var outputSubfolder = string.IsNullOrWhiteSpace(_settings.OutputSubfolderName)
             ? "Final"
             : _settings.OutputSubfolderName;
 
-        var videoFiles = _compressorService.GetVideoFiles(Folders.Select(f => f.FullName));
-
-        TotalCount = videoFiles.Length;
-        ProcessedCount = 0;
-
-        if (TotalCount == 0)
+        // Compute output paths and reset statuses
+        foreach (var job in Jobs)
         {
-            StatusMessage = "No videos found in the selected folders.";
-            IsRunning = false;
-            return;
-        }
-
-        StatusMessage = $"0 / {TotalCount} files processed";
-
-        // Build job list upfront
-        foreach (var file in videoFiles)
-        {
-            var info = new FileInfo(file);
-            var outputFolder = Path.Combine(info.DirectoryName ?? string.Empty, outputSubfolder);
-            var baseName = Path.GetFileNameWithoutExtension(file);
-            var ext = Path.GetExtension(file);
+            var baseName = Path.GetFileNameWithoutExtension(job.InputPath);
+            var ext = Path.GetExtension(job.InputPath);
             var outName = UsePostfix ? $"{baseName}{Postfix}{ext}" : $"{baseName}{ext}";
-            var outPath = Path.Combine(outputFolder, outName);
-
-            Jobs.Add(new VideoCompressionJobViewModel
-            {
-                InputFilename = info.Name,
-                OutputFilename = outName,
-                InputPath = file,
-                OutputPath = outPath,
-                Status = VideoCompressionJobStatus.Queued
-            });
+            var inputDir = new FileInfo(job.InputPath).DirectoryName ?? string.Empty;
+            job.OutputFilename = outName;
+            job.OutputPath = Path.Combine(inputDir, outputSubfolder, outName);
+            job.InputSize = 0;
+            job.OutputSize = 0;
+            job.ErrorMessage = null;
+            job.Status = VideoCompressionJobStatus.Queued;
         }
+
+        TotalCount = Jobs.Count;
+        ProcessedCount = 0;
+        StatusMessage = $"0 / {TotalCount} files processed";
 
         // Process each job sequentially
         for (var i = 0; i < Jobs.Count; i++)
@@ -178,7 +191,7 @@ public partial class VideoCompressorViewModel : ViewModelBase
                 var result = await _compressorService.CompressAsync(
                     job.InputPath,
                     job.OutputPath,
-                    SelectedPreset,
+                    job.SelectedPreset,
                     _settings.FfmpegPath,
                     progressReporter,
                     _cts.Token);
@@ -227,6 +240,8 @@ public partial class VideoCompressorViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanStart));
         ((AsyncRelayCommand)StartCommand).NotifyCanExecuteChanged();
         ((RelayCommand)CancelCommand).NotifyCanExecuteChanged();
+        foreach (var job in Jobs)
+            job.IsPresetEditable = !value;
     }
 
     // ── Preset definitions ────────────────────────────────────────────────────

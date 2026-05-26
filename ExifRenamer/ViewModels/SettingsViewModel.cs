@@ -15,13 +15,20 @@ public partial class SettingsViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsFfmpegConfigured))]
+    [NotifyPropertyChangedFor(nameof(IsVideoTabVisible))]
     private string _ffmpegPath = string.Empty;
 
     [ObservableProperty]
     private string _outputSubfolderName = "Final";
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsVideoTabVisible))]
+    private bool _isVideoCompressionEnabled;
+
     public bool IsFfmpegConfigured =>
         !string.IsNullOrWhiteSpace(FfmpegPath) && File.Exists(FfmpegPath);
+
+    public bool IsVideoTabVisible => IsVideoCompressionEnabled && IsFfmpegConfigured;
 
     public SettingsViewModel(SettingsService settingsService, IDialogService dialogService)
     {
@@ -31,11 +38,14 @@ public partial class SettingsViewModel : ViewModelBase
         // Assign backing fields directly to avoid triggering Save() during init
         _ffmpegPath = _appSettings.FfmpegPath;
         _outputSubfolderName = _appSettings.OutputSubfolderName;
+        _isVideoCompressionEnabled = _appSettings.IsVideoCompressionEnabled;
     }
 
     partial void OnFfmpegPathChanged(string value) => PersistSettings();
 
     partial void OnOutputSubfolderNameChanged(string value) => PersistSettings();
+
+    partial void OnIsVideoCompressionEnabledChanged(bool value) => PersistSettings();
 
     [RelayCommand]
     private async Task BrowseFfmpegAsync()
@@ -51,6 +61,7 @@ public partial class SettingsViewModel : ViewModelBase
     {
         _appSettings.FfmpegPath = FfmpegPath;
         _appSettings.OutputSubfolderName = OutputSubfolderName;
+        _appSettings.IsVideoCompressionEnabled = IsVideoCompressionEnabled;
         _settingsService.Save(_appSettings);
     }
 }
