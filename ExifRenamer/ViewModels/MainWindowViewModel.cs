@@ -28,6 +28,7 @@ public class MainWindowViewModel : ViewModelBase
     private ExifService _exifService;
     private bool _isCustomDateFormat;
     private string _customDateFormat = string.Empty;
+    private bool _includeSubfolders;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -51,6 +52,11 @@ public class MainWindowViewModel : ViewModelBase
             new("Modification date", DateType.Modification),
         };
         SelectedRenamerDateType = RenamerDateTypes[1];
+
+        var settingsService = new SettingsService();
+        Settings = new SettingsViewModel(settingsService, dialogService);
+        VideoCompressor = new VideoCompressorViewModel(
+            new VideoCompressorService(), dialogService, Settings);
     }
 
     #region Commands
@@ -62,11 +68,14 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand? OKCommand { get; }
     
     public ICommand ShowExifExplorerCommand { get; }
-    
+
     public ICommand RenameCommand { get; }
     #endregion
 
     #region Properties
+    public SettingsViewModel Settings { get; }
+    public VideoCompressorViewModel VideoCompressor { get; }
+
     public ObservableCollection<DirectoryInfo> PathFolders { get; set; }
 
     public int TotalImagesCount
@@ -158,7 +167,16 @@ public class MainWindowViewModel : ViewModelBase
         get => _isCustomDateFormat;
         set => SetProperty(ref _isCustomDateFormat, value);
     }
-    
+
+    public bool IncludeSubfolders
+    {
+        get => _includeSubfolders;
+        set
+        {
+            if (SetProperty(ref _includeSubfolders, value))
+                Task.Run(UpdateImageCount);
+        }
+    }
 
     #endregion
     
@@ -188,7 +206,7 @@ public class MainWindowViewModel : ViewModelBase
     private async Task<PreviewModel[]> GetImagePreviews()
     {
         List<string[]> previews = new();
-        foreach (var folder in PathFolders) previews.Add(_folderService.GetImageFiles(folder.FullName));
+        foreach (var folder in PathFolders) previews.Add(_folderService.GetImageFiles(folder.FullName, IncludeSubfolders));
 
         var files = previews.SelectMany(preview => preview).ToArray();
         var dateRenamerPattern = SelectedDateRenamerPattern;
@@ -219,7 +237,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         if (!PathFolders.Any()) return;
         var path = PathFolders.First().FullName;
-        var files = _folderService.GetImageFiles(path);
+        var files = _folderService.GetImageFiles(path, IncludeSubfolders);
         if (files.Any())
         { 
               var exifTags = _exifService.RetrieveExifTags(files);
