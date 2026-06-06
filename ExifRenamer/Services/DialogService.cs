@@ -25,7 +25,7 @@ public class DialogService(MainWindow owner) : IDialogService
             AllowMultiple = false,
             FileTypeFilter = new[]
             {
-                new FilePickerFileType("Executable") { Patterns = patterns }
+                new FilePickerFileType("Executable") { Patterns = ["*"] }
             }
         });
         return files.Count > 0 ? files[0].Path.LocalPath : null;
