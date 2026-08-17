@@ -44,6 +44,7 @@ public class MainWindowViewModel : ViewModelBase
         BuiltInRenamerPatterns = _renamerService.GetBuiltInRenamerPatterns().AsReadOnly();
         SelectedDateRenamerPattern = BuiltInRenamerPatterns.First();
         RenameCommand = new AsyncRelayCommand(RenameImages);
+        ClearImagesCommand = new RelayCommand(ClearImages);
         ShowExifExplorerCommand = new AsyncRelayCommand(OpenExifMetadataDialog);
         ShowHomeCommand = new RelayCommand(() => SelectedModuleIndex = 0);
         ShowImagesCommand = new RelayCommand(() => SelectedModuleIndex = 1);
@@ -61,7 +62,8 @@ public class MainWindowViewModel : ViewModelBase
         var settingsService = new SettingsService();
         Settings = new SettingsViewModel(settingsService, dialogService, new FfmpegDownloadService());
         VideoCompressor = new VideoCompressorViewModel(
-            new VideoCompressorService(), dialogService, Settings);
+            new VideoCompressorService(), dialogService, Settings,
+            () => SelectedModuleIndex = 3);
     }
 
     #region Commands
@@ -75,6 +77,7 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand ShowExifExplorerCommand { get; }
 
     public ICommand RenameCommand { get; }
+    public ICommand ClearImagesCommand { get; }
     public ICommand ShowHomeCommand { get; }
     public ICommand ShowImagesCommand { get; }
     public ICommand ShowVideosCommand { get; }
@@ -298,6 +301,19 @@ public class MainWindowViewModel : ViewModelBase
             File.Move(oldPath, newPath, overwrite:true);
         }
         await UpdateImageCount();
+    }
+
+    private void ClearImages()
+    {
+        PathFolders.Clear();
+        RenamePreviews.Clear();
+        TotalImagesCount = 0;
+        IsRenameEnabled = false;
+        IncludeSubfolders = false;
+        CustomFormat = string.Empty;
+        CustomDateFormat = string.Empty;
+        SelectedRenamerDateType = RenamerDateTypes[1];
+        SelectedDateRenamerPattern = BuiltInRenamerPatterns.First();
     }
     
     #endregion

@@ -103,11 +103,15 @@ public partial class VideoCompressorViewModel : ViewModelBase
     public ICommand RemoveJobCommand { get; }
     public ICommand StartCommand { get; }
     public ICommand CancelCommand { get; }
+    public ICommand ClearCommand { get; }
+    public ICommand OpenFfmpegSettingsCommand { get; }
 
     // ── Computed ─────────────────────────────────────────────────────────────
 
     public bool CanStart => Jobs.Count > 0 && !IsRunning && IsFfmpegConfigured;
+    public bool CanClear => !IsRunning && (Jobs.Count > 0 || Folders.Count > 0 || !string.IsNullOrEmpty(StatusMessage));
     public bool IsFfmpegConfigured => _settings.IsFfmpegConfigured;
+    public SettingsViewModel Settings => _settings;
     public bool IsCompressionMode => SelectedOperation?.Operation == VideoProcessingOperation.Compress;
     public bool IsAdvancedCompressionMode => IsCompressionMode && UseAdvancedCompressionSettings;
     public bool IsSpeedMode => SelectedOperation?.Operation is
@@ -129,7 +133,8 @@ public partial class VideoCompressorViewModel : ViewModelBase
     public VideoCompressorViewModel(
         VideoCompressorService compressorService,
         IDialogService dialogService,
-        SettingsViewModel settings)
+        SettingsViewModel settings,
+        Action openFfmpegSettings)
     {
         _compressorService = compressorService;
         _dialogService = dialogService;
@@ -146,17 +151,23 @@ public partial class VideoCompressorViewModel : ViewModelBase
         RemoveJobCommand = new RelayCommand<VideoCompressionJobViewModel>(job => { if (job is not null) Jobs.Remove(job); });
         StartCommand = new AsyncRelayCommand(StartCompressionAsync, () => CanStart);
         CancelCommand = new RelayCommand(CancelCompression, () => IsRunning);
+        ClearCommand = new RelayCommand(Clear, () => CanClear);
+        OpenFfmpegSettingsCommand = new RelayCommand(openFfmpegSettings);
 
         Folders.CollectionChanged += (_, _) =>
         {
             OnPropertyChanged(nameof(CanStart));
+            OnPropertyChanged(nameof(CanClear));
             ((AsyncRelayCommand)StartCommand).NotifyCanExecuteChanged();
+            ((RelayCommand)ClearCommand).NotifyCanExecuteChanged();
         };
 
         Jobs.CollectionChanged += (_, _) =>
         {
             OnPropertyChanged(nameof(CanStart));
+            OnPropertyChanged(nameof(CanClear));
             ((AsyncRelayCommand)StartCommand).NotifyCanExecuteChanged();
+            ((RelayCommand)ClearCommand).NotifyCanExecuteChanged();
         };
 
         _settings.PropertyChanged += OnSettingsPropertyChanged;
@@ -333,6 +344,29 @@ public partial class VideoCompressorViewModel : ViewModelBase
 
     private void CancelCompression() => _cts?.Cancel();
 
+    private void Clear()
+    {
+        Folders.Clear();
+        Jobs.Clear();
+        SelectedOperation = Operations[0];
+        SelectedPreset = Presets[0];
+        UseAdvancedCompressionSettings = false;
+        CustomCrf = 30;
+        CustomFfmpegPreset = "medium";
+        UsePostfix = true;
+        Postfix = "V";
+        IncludeSubfolders = false;
+        SpeedMultiplier = 2;
+        OutputFormat = "mp4";
+        GifWidth = 640;
+        GifFps = 12;
+        ProcessedCount = 0;
+        TotalCount = 0;
+        StatusMessage = string.Empty;
+        OnPropertyChanged(nameof(CanClear));
+        ((RelayCommand)ClearCommand).NotifyCanExecuteChanged();
+    }
+
     private string GetOutputExtension(string inputPath) => SelectedOperation.Operation switch
     {
         VideoProcessingOperation.ExportGif or VideoProcessingOperation.SpeedUpAndExportGif => ".gif",
@@ -353,6 +387,8 @@ public partial class VideoCompressorViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanStart));
         ((AsyncRelayCommand)StartCommand).NotifyCanExecuteChanged();
         ((RelayCommand)CancelCommand).NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanClear));
+        ((RelayCommand)ClearCommand).NotifyCanExecuteChanged();
         foreach (var job in Jobs)
             job.IsPresetEditable = !value;
     }

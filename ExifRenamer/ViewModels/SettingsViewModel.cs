@@ -18,6 +18,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsFfmpegConfigured))]
     [NotifyPropertyChangedFor(nameof(IsVideoTabVisible))]
+    [NotifyPropertyChangedFor(nameof(FfmpegConfigurationMessage))]
     private string _ffmpegPath = string.Empty;
 
     [ObservableProperty]
@@ -41,6 +42,10 @@ public partial class SettingsViewModel : ViewModelBase
         !string.IsNullOrWhiteSpace(FfmpegPath) && File.Exists(FfmpegPath);
 
     public bool IsVideoTabVisible => IsVideoCompressionEnabled && IsFfmpegConfigured;
+
+    public string FfmpegConfigurationMessage => string.IsNullOrWhiteSpace(FfmpegPath)
+        ? "No FFmpeg executable has been configured yet."
+        : "The configured FFmpeg executable could not be found. Select another file or download it again.";
 
     public string DetectedPlatform => _ffmpegDownloadService.PlatformDescription;
 

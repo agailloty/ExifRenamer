@@ -36,15 +36,9 @@
             <TabControl SelectedIndex="{Binding SelectedModuleIndex, Mode=TwoWay}">
 
                 <TabItem Header="Home">
-                    <ScrollViewer>
+                    <Grid>
                         <StackPanel Margin="36" Spacing="24" MaxWidth="900"
-                                    HorizontalAlignment="Center">
-                            <StackPanel Spacing="6" HorizontalAlignment="Center">
-                                <TextBlock Text="Choose a workspace. You can switch at any time without losing your current selection."
-                                           FontSize="14" Opacity="0.68" TextWrapping="Wrap"
-                                           TextAlignment="Center" />
-                            </StackPanel>
-
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Center">
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="20">
                                 <Button Grid.Column="0" Classes="moduleCard"
                                         Command="{Binding ShowImagesCommand}">
@@ -85,7 +79,7 @@
                                 </Grid>
                             </Border>
                         </StackPanel>
-                    </ScrollViewer>
+                    </Grid>
                 </TabItem>
 
                 <!-- Tab 1 : Photo Renamer -->
@@ -134,12 +128,16 @@
                         <Button Grid.Column="0" Grid.Row="3"
                                 Content="ADD FOLDER" FontSize="16"
                                 Command="{Binding AddFolderCommand}" />
-                        <Button Grid.Column="1" Grid.Row="3"
-                                IsVisible="{Binding HasImages}"
-                                HorizontalAlignment="Right"
-                                IsEnabled="{Binding IsRenameEnabled}"
-                                FontSize="16" Content="RENAME"
-                                Command="{Binding RenameCommand}" />
+                        <StackPanel Grid.Column="1" Grid.Row="3"
+                                    IsVisible="{Binding HasImages}"
+                                    HorizontalAlignment="Right"
+                                    Orientation="Horizontal" Spacing="8">
+                            <Button FontSize="16" Content="CLEAR"
+                                    Command="{Binding ClearImagesCommand}" />
+                            <Button IsEnabled="{Binding IsRenameEnabled}"
+                                    FontSize="16" Content="RENAME"
+                                    Command="{Binding RenameCommand}" />
+                        </StackPanel>
                         <StackPanel Grid.Column="1" Grid.Row="3"
                                     IsVisible="{Binding HasImages}"
                                     VerticalAlignment="Bottom"
