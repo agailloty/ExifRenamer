@@ -115,10 +115,35 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
 
+                <CheckBox Content="Advanced compression settings"
+                          IsVisible="{Binding IsCompressionMode}"
+                          IsChecked="{Binding UseAdvancedCompressionSettings, Mode=TwoWay}" />
+                <Border IsVisible="{Binding IsAdvancedCompressionMode}"
+                        Classes="warningCard" Padding="10">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Custom FFmpeg settings" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="CRF (0–51)" FontSize="11" Opacity="0.7" />
+                                <NumericUpDown Minimum="0" Maximum="51" Increment="1"
+                                               Value="{Binding CustomCrf, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Encoder preset" FontSize="11" Opacity="0.7" />
+                                <ComboBox ItemsSource="{Binding FfmpegPresets}"
+                                          SelectedItem="{Binding CustomFfmpegPreset, Mode=TwoWay}" />
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="A higher CRF reduces quality and file size. A slower preset improves compression but takes longer."
+                                   TextWrapping="Wrap" FontSize="11" Opacity="0.7" />
+                    </StackPanel>
+                </Border>
+
                 <StackPanel IsVisible="{Binding IsSpeedMode}" Spacing="4">
-                    <TextBlock Text="Playback speed:" FontWeight="SemiBold" />
-                    <ComboBox ItemsSource="{Binding SpeedMultipliers}"
-                              SelectedItem="{Binding SpeedMultiplier, Mode=TwoWay}" />
+                    <TextBlock Text="Playback speed factor:" FontWeight="SemiBold" />
+                    <NumericUpDown Minimum="1" Maximum="100" Increment="0.1"
+                                   FormatString="0.##×"
+                                   Value="{Binding SpeedMultiplier, Mode=TwoWay}" />
                     <TextBlock Text="Audio is accelerated with the video when an audio track is available."
                                TextWrapping="Wrap" FontSize="11" Opacity="0.65" />
                 </StackPanel>

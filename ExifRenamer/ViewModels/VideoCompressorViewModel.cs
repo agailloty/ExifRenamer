@@ -27,6 +27,16 @@ public partial class VideoCompressorViewModel : ViewModelBase
     private VideoCompressionPreset _selectedPreset = null!;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsAdvancedCompressionMode))]
+    private bool _useAdvancedCompressionSettings;
+
+    [ObservableProperty]
+    private int _customCrf = 30;
+
+    [ObservableProperty]
+    private string _customFfmpegPreset = "medium";
+
+    [ObservableProperty]
     private bool _usePostfix = true;
 
     [ObservableProperty]
@@ -50,6 +60,7 @@ public partial class VideoCompressorViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsCompressionMode))]
+    [NotifyPropertyChangedFor(nameof(IsAdvancedCompressionMode))]
     [NotifyPropertyChangedFor(nameof(IsSpeedMode))]
     [NotifyPropertyChangedFor(nameof(IsConvertMode))]
     [NotifyPropertyChangedFor(nameof(IsGifMode))]
@@ -73,6 +84,11 @@ public partial class VideoCompressorViewModel : ViewModelBase
     public ObservableCollection<DirectoryInfo> Folders { get; } = new();
     public ObservableCollection<VideoCompressionJobViewModel> Jobs { get; } = new();
     public IReadOnlyList<VideoCompressionPreset> Presets { get; }
+    public IReadOnlyList<string> FfmpegPresets { get; } = new[]
+    {
+        "ultrafast", "superfast", "veryfast", "faster", "fast", "medium",
+        "slow", "slower", "veryslow", "placebo"
+    };
     public IReadOnlyList<VideoProcessingOperationOption> Operations { get; }
     public IReadOnlyList<double> SpeedMultipliers { get; } = new[] { 1.25, 1.5, 2, 3, 4 };
     public IReadOnlyList<string> OutputFormats { get; } = new[] { "mp4", "mkv", "mov", "webm", "avi" };
@@ -93,6 +109,7 @@ public partial class VideoCompressorViewModel : ViewModelBase
     public bool CanStart => Jobs.Count > 0 && !IsRunning && IsFfmpegConfigured;
     public bool IsFfmpegConfigured => _settings.IsFfmpegConfigured;
     public bool IsCompressionMode => SelectedOperation?.Operation == VideoProcessingOperation.Compress;
+    public bool IsAdvancedCompressionMode => IsCompressionMode && UseAdvancedCompressionSettings;
     public bool IsSpeedMode => SelectedOperation?.Operation is
         VideoProcessingOperation.SpeedUp or VideoProcessingOperation.SpeedUpAndExportGif;
     public bool IsConvertMode => SelectedOperation?.Operation == VideoProcessingOperation.Convert;
@@ -119,7 +136,7 @@ public partial class VideoCompressorViewModel : ViewModelBase
         _settings = settings;
 
         Presets = BuildPresets();
-        _selectedPreset = Presets[2]; // Balanced by default
+        _selectedPreset = Presets[0]; // CRF 30 / medium by default
         Operations = BuildOperations();
         _selectedOperation = Operations[0];
 
@@ -269,8 +286,8 @@ public partial class VideoCompressorViewModel : ViewModelBase
                     new VideoProcessingOptions
                     {
                         Operation = SelectedOperation.Operation,
-                        CompressionPreset = job.SelectedPreset,
-                        SpeedMultiplier = SpeedMultiplier,
+                        CompressionPreset = GetCompressionPreset(job),
+                        SpeedMultiplier = Math.Clamp(SpeedMultiplier, 1, 100),
                         OutputFormat = OutputFormat,
                         GifWidth = GifWidth,
                         GifFps = GifFps
@@ -385,6 +402,7 @@ public partial class VideoCompressorViewModel : ViewModelBase
     private static IReadOnlyList<VideoCompressionPreset> BuildPresets() =>
         new List<VideoCompressionPreset>
         {
+            new() { Name = "Compact (default)",   Description = "CRF 30 · medium — efficient compression and reduced size",             Crf = 30, FfmpegPreset = "medium"    },
             new() { Name = "Very high quality", Description = "CRF 18 · slow — near-original quality, large files",                Crf = 18, FfmpegPreset = "slow"      },
             new() { Name = "High quality",         Description = "CRF 22 · medium — excellent quality, good compression",               Crf = 22, FfmpegPreset = "medium"    },
             new() { Name = "Balanced",             Description = "CRF 27 · veryfast — good quality/size trade-off (recommended)",       Crf = 27, FfmpegPreset = "veryfast"  },
@@ -394,6 +412,22 @@ public partial class VideoCompressorViewModel : ViewModelBase
             new() { Name = "HD (720p)",            Description = "CRF 23 · veryfast — scales to 1280×… (source ≥ 720p)",               Crf = 23, FfmpegPreset = "veryfast",  ScaleFilter = "1280:-2" },
             new() { Name = "Social media",         Description = "CRF 28 · veryfast — 720p optimised for online sharing",               Crf = 28, FfmpegPreset = "veryfast",  ScaleFilter = "1280:-2" },
         }.AsReadOnly();
+
+    private VideoCompressionPreset GetCompressionPreset(VideoCompressionJobViewModel job)
+    {
+        if (!UseAdvancedCompressionSettings)
+            return job.SelectedPreset;
+
+        return new VideoCompressionPreset
+        {
+            Name = "Custom",
+            Description = $"CRF {CustomCrf} · {CustomFfmpegPreset}",
+            Crf = Math.Clamp(CustomCrf, 0, 51),
+            FfmpegPreset = FfmpegPresets.Contains(CustomFfmpegPreset)
+                ? CustomFfmpegPreset
+                : "medium"
+        };
+    }
 
     private static IReadOnlyList<VideoProcessingOperationOption> BuildOperations() =>
         new List<VideoProcessingOperationOption>
