@@ -11,6 +11,23 @@ It is available for Windows, Linux and MacOS. The tool is open source and licens
 The tool is under active development. Any contribution is appreciated. If you find any bugs or have any feature requests, please open an issue on the GitHub repository.
 ![img_2.png](docs/img_2.png)
 
+## Landing page
+
+The static product website lives in `docs/` and uses plain HTML, CSS and
+JavaScript. Preview it without building the desktop application:
+
+```shell
+python -m http.server 8080 --directory docs
+```
+
+Then open `http://localhost:8080`. The illustrative screenshots are the three
+`docs/assets/screenshot-*.svg` files; replace them while keeping the same file
+names, or update the paths in `docs/assets/app.js`.
+
+Changes limited to `docs/` deploy through the `Deploy landing page` workflow and
+are ignored by the desktop build. In the repository settings, configure GitHub
+Pages to use **GitHub Actions** as its source.
+
 ## Distribution
 
 GitHub Actions builds installable and portable packages for every push and pull
