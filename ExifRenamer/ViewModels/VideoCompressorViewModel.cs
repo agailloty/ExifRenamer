@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -47,15 +48,41 @@ public partial class VideoCompressorViewModel : ViewModelBase
     [ObservableProperty]
     private bool _includeSubfolders;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsCompressionMode))]
+    [NotifyPropertyChangedFor(nameof(IsSpeedMode))]
+    [NotifyPropertyChangedFor(nameof(IsConvertMode))]
+    [NotifyPropertyChangedFor(nameof(IsGifMode))]
+    [NotifyPropertyChangedFor(nameof(ActionButtonText))]
+    private VideoProcessingOperationOption _selectedOperation = null!;
+
+    [ObservableProperty]
+    private double _speedMultiplier = 2;
+
+    [ObservableProperty]
+    private string _outputFormat = "mp4";
+
+    [ObservableProperty]
+    private int _gifWidth = 640;
+
+    [ObservableProperty]
+    private int _gifFps = 12;
+
     // ── Collections ──────────────────────────────────────────────────────────
 
     public ObservableCollection<DirectoryInfo> Folders { get; } = new();
     public ObservableCollection<VideoCompressionJobViewModel> Jobs { get; } = new();
     public IReadOnlyList<VideoCompressionPreset> Presets { get; }
+    public IReadOnlyList<VideoProcessingOperationOption> Operations { get; }
+    public IReadOnlyList<double> SpeedMultipliers { get; } = new[] { 1.25, 1.5, 2, 3, 4 };
+    public IReadOnlyList<string> OutputFormats { get; } = new[] { "mp4", "mkv", "mov", "webm", "avi" };
+    public IReadOnlyList<int> GifWidths { get; } = new[] { 320, 480, 640, 800 };
+    public IReadOnlyList<int> GifFrameRates { get; } = new[] { 8, 10, 12, 15, 20 };
 
     // ── Commands ─────────────────────────────────────────────────────────────
 
     public ICommand AddFolderCommand { get; }
+    public ICommand AddFileCommand { get; }
     public ICommand RemoveFolderCommand { get; }
     public ICommand RemoveJobCommand { get; }
     public ICommand StartCommand { get; }
@@ -63,7 +90,22 @@ public partial class VideoCompressorViewModel : ViewModelBase
 
     // ── Computed ─────────────────────────────────────────────────────────────
 
-    public bool CanStart => Jobs.Count > 0 && !IsRunning;
+    public bool CanStart => Jobs.Count > 0 && !IsRunning && IsFfmpegConfigured;
+    public bool IsFfmpegConfigured => _settings.IsFfmpegConfigured;
+    public bool IsCompressionMode => SelectedOperation?.Operation == VideoProcessingOperation.Compress;
+    public bool IsSpeedMode => SelectedOperation?.Operation is
+        VideoProcessingOperation.SpeedUp or VideoProcessingOperation.SpeedUpAndExportGif;
+    public bool IsConvertMode => SelectedOperation?.Operation == VideoProcessingOperation.Convert;
+    public bool IsGifMode => SelectedOperation?.Operation is
+        VideoProcessingOperation.ExportGif or VideoProcessingOperation.SpeedUpAndExportGif;
+    public string ActionButtonText => SelectedOperation?.Operation switch
+    {
+        VideoProcessingOperation.SpeedUp => "▶  SPEED UP",
+        VideoProcessingOperation.Convert => "▶  CONVERT",
+        VideoProcessingOperation.ExportGif => "▶  EXPORT GIF",
+        VideoProcessingOperation.SpeedUpAndExportGif => "▶  SPEED UP + GIF",
+        _ => "▶  COMPRESS"
+    };
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -78,8 +120,11 @@ public partial class VideoCompressorViewModel : ViewModelBase
 
         Presets = BuildPresets();
         _selectedPreset = Presets[2]; // Balanced by default
+        Operations = BuildOperations();
+        _selectedOperation = Operations[0];
 
         AddFolderCommand = new AsyncRelayCommand(AddFolderAsync);
+        AddFileCommand = new AsyncRelayCommand(AddFileAsync);
         RemoveFolderCommand = new RelayCommand<DirectoryInfo>(RemoveFolder);
         RemoveJobCommand = new RelayCommand<VideoCompressionJobViewModel>(job => { if (job is not null) Jobs.Remove(job); });
         StartCommand = new AsyncRelayCommand(StartCompressionAsync, () => CanStart);
@@ -96,6 +141,8 @@ public partial class VideoCompressorViewModel : ViewModelBase
             OnPropertyChanged(nameof(CanStart));
             ((AsyncRelayCommand)StartCommand).NotifyCanExecuteChanged();
         };
+
+        _settings.PropertyChanged += OnSettingsPropertyChanged;
     }
 
     // ── Command implementations ───────────────────────────────────────────────
@@ -112,6 +159,16 @@ public partial class VideoCompressorViewModel : ViewModelBase
                 ScanAndAddJobs(dir);
             }
         }
+    }
+
+    private async Task AddFileAsync()
+    {
+        var path = await _dialogService.ShowFilePickerAsync(
+            "Select a video",
+            new[] { "*.mp4", "*.mov", "*.avi", "*.mkv", "*.wmv", "*.flv", "*.m4v", "*.webm" });
+
+        if (!string.IsNullOrWhiteSpace(path) && _compressorService.IsSupportedVideo(path))
+            AddJob(path);
     }
 
     private void RemoveFolder(DirectoryInfo? folder)
@@ -131,18 +188,30 @@ public partial class VideoCompressorViewModel : ViewModelBase
     {
         var files = _compressorService.GetVideoFiles(new[] { folder.FullName }, IncludeSubfolders);
         foreach (var file in files)
+            AddJob(file);
+    }
+
+    private void AddJob(string file)
+    {
+        if (Jobs.Any(j => j.InputPath.Equals(file, StringComparison.OrdinalIgnoreCase)))
+            return;
+
+        var info = new FileInfo(file);
+        Jobs.Add(new VideoCompressionJobViewModel
         {
-            if (Jobs.Any(j => j.InputPath.Equals(file, StringComparison.OrdinalIgnoreCase)))
-                continue;
-            var info = new FileInfo(file);
-            Jobs.Add(new VideoCompressionJobViewModel
-            {
-                InputFilename = info.Name,
-                InputPath = file,
-                Presets = Presets,
-                SelectedPreset = SelectedPreset
-            });
-        }
+            InputFilename = info.Name,
+            InputPath = file,
+            Presets = Presets,
+            SelectedPreset = SelectedPreset
+        });
+    }
+
+    private void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs args)
+    {
+        if (args.PropertyName is not nameof(SettingsViewModel.FfmpegPath)) return;
+        OnPropertyChanged(nameof(IsFfmpegConfigured));
+        OnPropertyChanged(nameof(CanStart));
+        ((AsyncRelayCommand)StartCommand).NotifyCanExecuteChanged();
     }
 
     private async Task StartCompressionAsync()
@@ -160,8 +229,11 @@ public partial class VideoCompressorViewModel : ViewModelBase
         foreach (var job in Jobs)
         {
             var baseName = Path.GetFileNameWithoutExtension(job.InputPath);
-            var ext = Path.GetExtension(job.InputPath);
-            var outName = UsePostfix ? $"{baseName}{Postfix}{ext}" : $"{baseName}{ext}";
+            var ext = GetOutputExtension(job.InputPath);
+            var suffix = UsePostfix ? GetOutputSuffix() : string.Empty;
+            var outName = $"{baseName}{suffix}{ext}";
+            if (string.Equals(outName, job.InputFilename, StringComparison.OrdinalIgnoreCase))
+                outName = $"{baseName}_output{ext}";
             var inputDir = new FileInfo(job.InputPath).DirectoryName ?? string.Empty;
             job.OutputFilename = outName;
             job.OutputPath = Path.Combine(inputDir, outputSubfolder, outName);
@@ -182,7 +254,7 @@ public partial class VideoCompressorViewModel : ViewModelBase
 
             var job = Jobs[i];
             job.Status = VideoCompressionJobStatus.Processing;
-            StatusMessage = $"Compressing {job.InputFilename}...";
+            StatusMessage = $"Processing {job.InputFilename}...";
 
             try
             {
@@ -191,10 +263,18 @@ public partial class VideoCompressorViewModel : ViewModelBase
                 var progressReporter = new Progress<string>(line =>
                     StatusMessage = $"[{job.InputFilename}] {line}");
 
-                var result = await _compressorService.CompressAsync(
+                var result = await _compressorService.ProcessAsync(
                     job.InputPath,
                     job.OutputPath,
-                    job.SelectedPreset,
+                    new VideoProcessingOptions
+                    {
+                        Operation = SelectedOperation.Operation,
+                        CompressionPreset = job.SelectedPreset,
+                        SpeedMultiplier = SpeedMultiplier,
+                        OutputFormat = OutputFormat,
+                        GifWidth = GifWidth,
+                        GifFps = GifFps
+                    },
                     _settings.FfmpegPath,
                     progressReporter,
                     _cts.Token);
@@ -226,8 +306,8 @@ public partial class VideoCompressorViewModel : ViewModelBase
         var doneCount = Jobs.Count(j => j.Status == VideoCompressionJobStatus.Done);
         var failedCount = Jobs.Count(j => j.Status == VideoCompressionJobStatus.Failed);
         StatusMessage = failedCount > 0
-            ? $"Done — {doneCount} compressed, {failedCount} error(s) out of {TotalCount}"
-            : $"Done — {doneCount} file(s) compressed out of {TotalCount}";
+            ? $"Done — {doneCount} processed, {failedCount} error(s) out of {TotalCount}"
+            : $"Done — {doneCount} file(s) processed out of {TotalCount}";
 
         IsRunning = false;
         _cts.Dispose();
@@ -235,6 +315,19 @@ public partial class VideoCompressorViewModel : ViewModelBase
     }
 
     private void CancelCompression() => _cts?.Cancel();
+
+    private string GetOutputExtension(string inputPath) => SelectedOperation.Operation switch
+    {
+        VideoProcessingOperation.ExportGif or VideoProcessingOperation.SpeedUpAndExportGif => ".gif",
+        VideoProcessingOperation.SpeedUp => ".mp4",
+        VideoProcessingOperation.Convert => $".{OutputFormat.ToLowerInvariant()}",
+        _ => Path.GetExtension(inputPath)
+    };
+
+    private string GetOutputSuffix()
+    {
+        return Postfix;
+    }
 
     // ── Partial hooks ─────────────────────────────────────────────────────────
 
@@ -249,9 +342,42 @@ public partial class VideoCompressorViewModel : ViewModelBase
 
     partial void OnIncludeSubfoldersChanged(bool value)
     {
+        var standaloneJobs = Jobs
+            .Where(job => Folders.All(folder => !IsInsideFolder(job.InputPath, folder.FullName)))
+            .ToList();
         Jobs.Clear();
+        foreach (var job in standaloneJobs)
+            Jobs.Add(job);
         foreach (var folder in Folders)
             ScanAndAddJobs(folder);
+    }
+
+    partial void OnSelectedOperationChanged(VideoProcessingOperationOption value)
+    {
+        Postfix = value.Operation switch
+        {
+            VideoProcessingOperation.Compress => "V",
+            VideoProcessingOperation.SpeedUp => $"_x{SpeedMultiplier:0.##}",
+            VideoProcessingOperation.Convert => "_converted",
+            VideoProcessingOperation.ExportGif => "_gif",
+            VideoProcessingOperation.SpeedUpAndExportGif => $"_x{SpeedMultiplier:0.##}_gif",
+            _ => "_output"
+        };
+    }
+
+    partial void OnSpeedMultiplierChanged(double value)
+    {
+        if (SelectedOperation?.Operation == VideoProcessingOperation.SpeedUp)
+            Postfix = $"_x{value:0.##}";
+        else if (SelectedOperation?.Operation == VideoProcessingOperation.SpeedUpAndExportGif)
+            Postfix = $"_x{value:0.##}_gif";
+    }
+
+    private static bool IsInsideFolder(string filePath, string folderPath)
+    {
+        var prefix = folderPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                     + Path.DirectorySeparatorChar;
+        return filePath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
     }
 
     // ── Preset definitions ────────────────────────────────────────────────────
@@ -267,5 +393,15 @@ public partial class VideoCompressorViewModel : ViewModelBase
             new() { Name = "Full HD (1080p)",      Description = "CRF 23 · veryfast — scales to 1920×… (source ≥ 1080p)",              Crf = 23, FfmpegPreset = "veryfast",  ScaleFilter = "1920:-2" },
             new() { Name = "HD (720p)",            Description = "CRF 23 · veryfast — scales to 1280×… (source ≥ 720p)",               Crf = 23, FfmpegPreset = "veryfast",  ScaleFilter = "1280:-2" },
             new() { Name = "Social media",         Description = "CRF 28 · veryfast — 720p optimised for online sharing",               Crf = 28, FfmpegPreset = "veryfast",  ScaleFilter = "1280:-2" },
+        }.AsReadOnly();
+
+    private static IReadOnlyList<VideoProcessingOperationOption> BuildOperations() =>
+        new List<VideoProcessingOperationOption>
+        {
+            new() { Operation = VideoProcessingOperation.Compress, Name = "Compress", Description = "Reduce file size while controlling quality." },
+            new() { Operation = VideoProcessingOperation.SpeedUp, Name = "Speed up", Description = "Create a faster MP4 video and preserve audio when present." },
+            new() { Operation = VideoProcessingOperation.Convert, Name = "Convert format", Description = "Convert to MP4, MKV, MOV, WebM or AVI." },
+            new() { Operation = VideoProcessingOperation.ExportGif, Name = "Export as GIF", Description = "Create an optimized animated GIF from an existing video." },
+            new() { Operation = VideoProcessingOperation.SpeedUpAndExportGif, Name = "Speed up and export GIF", Description = "Accelerate the source while generating the GIF." }
         }.AsReadOnly();
 }

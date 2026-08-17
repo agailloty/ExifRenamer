@@ -29,6 +29,7 @@ public class MainWindowViewModel : ViewModelBase
     private bool _isCustomDateFormat;
     private string _customDateFormat = string.Empty;
     private bool _includeSubfolders;
+    private int _selectedModuleIndex;
 
     public MainWindowViewModel(IDialogService dialogService)
     {
@@ -44,6 +45,10 @@ public class MainWindowViewModel : ViewModelBase
         SelectedDateRenamerPattern = BuiltInRenamerPatterns.First();
         RenameCommand = new AsyncRelayCommand(RenameImages);
         ShowExifExplorerCommand = new AsyncRelayCommand(OpenExifMetadataDialog);
+        ShowHomeCommand = new RelayCommand(() => SelectedModuleIndex = 0);
+        ShowImagesCommand = new RelayCommand(() => SelectedModuleIndex = 1);
+        ShowVideosCommand = new RelayCommand(() => SelectedModuleIndex = 2);
+        ShowSettingsCommand = new RelayCommand(() => SelectedModuleIndex = 3);
         _exifService = new ExifService();
         RenamerDateTypes = new ObservableCollection<RenamerDateType>
         {
@@ -70,11 +75,21 @@ public class MainWindowViewModel : ViewModelBase
     public ICommand ShowExifExplorerCommand { get; }
 
     public ICommand RenameCommand { get; }
+    public ICommand ShowHomeCommand { get; }
+    public ICommand ShowImagesCommand { get; }
+    public ICommand ShowVideosCommand { get; }
+    public ICommand ShowSettingsCommand { get; }
     #endregion
 
     #region Properties
     public SettingsViewModel Settings { get; }
     public VideoCompressorViewModel VideoCompressor { get; }
+
+    public int SelectedModuleIndex
+    {
+        get => _selectedModuleIndex;
+        set => SetProperty(ref _selectedModuleIndex, value);
+    }
 
     public ObservableCollection<DirectoryInfo> PathFolders { get; set; }
 

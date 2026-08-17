@@ -4,11 +4,13 @@
         xmlns:views="using:ExifRenamer.Views"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+        mc:Ignorable="d" d:DesignWidth="1050" d:DesignHeight="720"
         x:Class="ExifRenamer.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/ExifRenamer.ico"
         WindowStartupLocation="CenterScreen"
+        MinWidth="900" MinHeight="620"
+        Width="1100" Height="760"
         Title="Exif Renamer">
 
     <Design.DataContext>
@@ -31,10 +33,66 @@
         <DockPanel Margin="5" LastChildFill="True">
 
             <!-- ── Main TabControl ────────────────────────────────────────── -->
-            <TabControl>
+            <TabControl SelectedIndex="{Binding SelectedModuleIndex, Mode=TwoWay}">
+
+                <TabItem Header="Home">
+                    <ScrollViewer>
+                        <StackPanel Margin="36" Spacing="24" MaxWidth="900"
+                                    HorizontalAlignment="Center">
+                            <StackPanel Spacing="6" HorizontalAlignment="Center">
+                                <TextBlock Text="What would you like to work on?"
+                                           FontSize="30" FontWeight="Bold"
+                                           HorizontalAlignment="Center" />
+                                <TextBlock Text="Choose a workspace. You can switch at any time without losing your current selection."
+                                           FontSize="14" Opacity="0.68" TextWrapping="Wrap"
+                                           TextAlignment="Center" />
+                            </StackPanel>
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="20">
+                                <Button Grid.Column="0" Classes="moduleCard"
+                                        Command="{Binding ShowImagesCommand}">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="📷" FontSize="42" />
+                                        <TextBlock Text="Images" FontSize="22" FontWeight="Bold" />
+                                        <TextBlock Text="Rename photo collections from dates and EXIF metadata, with a preview before applying changes."
+                                                   TextWrapping="Wrap" Opacity="0.7" />
+                                        <TextBlock Text="OPEN IMAGE WORKSPACE  →"
+                                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                                                   FontWeight="SemiBold" Margin="0 8 0 0" />
+                                    </StackPanel>
+                                </Button>
+
+                                <Button Grid.Column="1" Classes="moduleCard"
+                                        Command="{Binding ShowVideosCommand}">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="🎬" FontSize="42" />
+                                        <TextBlock Text="Videos" FontSize="22" FontWeight="Bold" />
+                                        <TextBlock Text="Compress one video or a complete folder using presets adapted to quality, size and sharing."
+                                                   TextWrapping="Wrap" Opacity="0.7" />
+                                        <TextBlock Text="OPEN VIDEO WORKSPACE  →"
+                                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                                                   FontWeight="SemiBold" Margin="0 8 0 0" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <Border Classes="card" Padding="14">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <StackPanel>
+                                        <TextBlock Text="Application settings" FontWeight="SemiBold" />
+                                        <TextBlock Text="Configure FFmpeg and the video output folder."
+                                                   Opacity="0.65" FontSize="12" />
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Content="OPEN SETTINGS"
+                                            Command="{Binding ShowSettingsCommand}" />
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
 
                 <!-- Tab 1 : Photo Renamer -->
-                <TabItem Header="📷  Rename photos">
+                <TabItem Header="📷  Images">
                     <Grid Margin="5" ColumnDefinitions="*,2*" RowDefinitions="*,5*,*,Auto">
 
                         <StackPanel Grid.Column="0" Grid.Row="1" Margin="0 0 30 0" Grid.RowSpan="2">
@@ -156,8 +214,7 @@
                 </TabItem>
 
                 <!-- Tab 2 : Video Compressor (visible only when feature is enabled + ffmpeg is configured) -->
-                <TabItem Header="🎬  Compress videos"
-                         IsVisible="{Binding Settings.IsVideoTabVisible}">
+                <TabItem Header="🎬  Videos">
                     <views:VideoCompressorView DataContext="{Binding VideoCompressor}" />
                 </TabItem>
 

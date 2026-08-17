@@ -8,10 +8,19 @@
              x:DataType="vm:VideoCompressorViewModel"
              x:Class="ExifRenamer.Views.VideoCompressorView">
 
-    <Grid Margin="5" RowDefinitions="Auto,Auto,*,Auto">
+    <Grid Margin="8" RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <Border Grid.Row="0" Classes="warningCard"
+                IsVisible="{Binding !IsFfmpegConfigured}" Margin="0 0 0 12">
+            <StackPanel>
+                <TextBlock Text="FFmpeg is required to compress videos" FontWeight="SemiBold" />
+                <TextBlock Text="Open Settings to select an existing executable or download the appropriate version for this computer."
+                           TextWrapping="Wrap" Opacity="0.75" Margin="0 3 0 0" />
+            </StackPanel>
+        </Border>
 
         <!-- ── Row 0 : Folders + Options ───────────────────────────────── -->
-        <Grid Grid.Row="0" ColumnDefinitions="1*,2*" Margin="0 0 0 10">
+        <Grid Grid.Row="1" ColumnDefinitions="1*,2*" Margin="0 0 0 10">
 
             <!-- Left column : source folders -->
             <StackPanel Grid.Column="0" Margin="0 0 20 0">
@@ -43,8 +52,12 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                 </ScrollViewer>
-                <Button Content="ADD FOLDER" Margin="0 10 0 0"
-                        Command="{Binding AddFolderCommand}" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0 10 0 0">
+                    <Button Grid.Column="0" Content="ADD FILE" Classes="accent"
+                            Command="{Binding AddFileCommand}" />
+                    <Button Grid.Column="1" Content="ADD FOLDER"
+                            Command="{Binding AddFolderCommand}" />
+                </Grid>
                 <CheckBox Content="Include subfolders"
                           IsChecked="{Binding IncludeSubfolders, Mode=TwoWay}"
                           Margin="0 6 0 0" />
@@ -52,11 +65,28 @@
 
             <!-- Right column : compression options -->
             <StackPanel Grid.Column="1" Spacing="8">
-                <Label FontWeight="ExtraBold" FontSize="16" Content="Compression options" />
+                <Label FontWeight="ExtraBold" FontSize="16" Content="Video workflow" />
+
+                <TextBlock Text="Operation:" FontWeight="SemiBold" />
+                <ComboBox HorizontalAlignment="Stretch"
+                          ItemsSource="{Binding Operations}"
+                          SelectedItem="{Binding SelectedOperation, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:VideoProcessingOperationOption">
+                            <StackPanel Margin="2">
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Description}" FontSize="11" Opacity="0.65"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
 
                 <!-- Preset selector -->
-                <TextBlock Text="Preset:" FontWeight="SemiBold" />
+                <TextBlock Text="Compression preset:" FontWeight="SemiBold"
+                           IsVisible="{Binding IsCompressionMode}" />
                 <ComboBox HorizontalAlignment="Stretch"
+                          IsVisible="{Binding IsCompressionMode}"
                           ItemsSource="{Binding Presets}"
                           SelectedItem="{Binding SelectedPreset, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
@@ -68,6 +98,40 @@
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>
+
+                <StackPanel IsVisible="{Binding IsSpeedMode}" Spacing="4">
+                    <TextBlock Text="Playback speed:" FontWeight="SemiBold" />
+                    <ComboBox ItemsSource="{Binding SpeedMultipliers}"
+                              SelectedItem="{Binding SpeedMultiplier, Mode=TwoWay}" />
+                    <TextBlock Text="Audio is accelerated with the video when an audio track is available."
+                               TextWrapping="Wrap" FontSize="11" Opacity="0.65" />
+                </StackPanel>
+
+                <StackPanel IsVisible="{Binding IsConvertMode}" Spacing="4">
+                    <TextBlock Text="Output format:" FontWeight="SemiBold" />
+                    <ComboBox ItemsSource="{Binding OutputFormats}"
+                              SelectedItem="{Binding OutputFormat, Mode=TwoWay}" />
+                </StackPanel>
+
+                <Border IsVisible="{Binding IsGifMode}" Classes="warningCard" Padding="10">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="GIF export constraints" FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Maximum width" FontSize="11" Opacity="0.7" />
+                                <ComboBox ItemsSource="{Binding GifWidths}"
+                                          SelectedItem="{Binding GifWidth, Mode=TwoWay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Frames per second" FontSize="11" Opacity="0.7" />
+                                <ComboBox ItemsSource="{Binding GifFrameRates}"
+                                          SelectedItem="{Binding GifFps, Mode=TwoWay}" />
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="The aspect ratio is preserved, audio is removed, and an optimized 256-color palette is generated. Short clips produce significantly smaller GIF files."
+                                   TextWrapping="Wrap" FontSize="11" Opacity="0.7" />
+                    </StackPanel>
+                </Border>
 
                 <!-- Postfix option -->
                 <CheckBox Content="Append a suffix to output filename"
@@ -85,9 +149,9 @@
         </Grid>
 
         <!-- ── Row 1 : Action bar ──────────────────────────────────────── -->
-        <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*,Auto"
+        <Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,*,Auto"
               Margin="0 0 0 8">
-            <Button Grid.Column="0" Content="▶  COMPRESS"
+            <Button Grid.Column="0" Content="{Binding ActionButtonText}" Classes="accent"
                     FontSize="14" FontWeight="SemiBold"
                     IsEnabled="{Binding CanStart}"
                     Command="{Binding StartCommand}" />
@@ -106,13 +170,13 @@
         </Grid>
 
         <!-- ── Row 2 : Jobs list ───────────────────────────────────────── -->
-        <Border Grid.Row="2" BorderThickness="1" CornerRadius="4">
+        <Border Grid.Row="3" Classes="card" Padding="4">
             <ScrollViewer HorizontalScrollBarVisibility="Disabled">
                 <ListBox Background="Transparent"
                          ItemsSource="{Binding Jobs}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:VideoCompressionJobViewModel">
-                            <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="2 3">
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="2 3">
 
                                 <!-- Play button -->
                                 <Button Grid.Column="0"
@@ -142,6 +206,7 @@
                                         VerticalAlignment="Center"
                                         Margin="4 0 2 0"
                                         IsEnabled="{Binding IsPresetEditable}"
+                                        IsVisible="{Binding $parent[UserControl].((vm:VideoCompressorViewModel)DataContext).IsCompressionMode}"
                                         ToolTip.Tip="{Binding SelectedPreset.Name}">⚙
                                     <Button.Flyout>
                                         <Flyout Placement="BottomEdgeAlignedRight">
@@ -168,8 +233,17 @@
                                     </Button.Flyout>
                                 </Button>
 
-                                <!-- Remove job button -->
+                                <!-- Open generated file location -->
                                 <Button Grid.Column="3"
+                                        Width="28" Height="28" Padding="0"
+                                        VerticalAlignment="Center"
+                                        Margin="2 0 0 0"
+                                        IsEnabled="{Binding CanOpenOutputFolder}"
+                                        ToolTip.Tip="Open output folder"
+                                        Command="{Binding OpenOutputFolderCommand}">📂</Button>
+
+                                <!-- Remove job button -->
+                                <Button Grid.Column="4"
                                         Width="28" Height="28" Padding="0"
                                         VerticalAlignment="Center"
                                         Margin="2 0 0 0"
@@ -188,7 +262,7 @@
         </Border>
 
         <!-- ── Row 3 : Status bar ──────────────────────────────────────── -->
-        <TextBlock Grid.Row="3" Margin="0 6 0 0"
+        <TextBlock Grid.Row="4" Margin="0 6 0 0"
                    Text="{Binding StatusMessage}"
                    TextTrimming="CharacterEllipsis"
                    Opacity="0.75" />

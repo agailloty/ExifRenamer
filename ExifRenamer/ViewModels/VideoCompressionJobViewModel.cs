@@ -1,3 +1,4 @@
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -15,21 +16,34 @@ public class VideoCompressionJobViewModel : ViewModelBase
     private string? _errorMessage;
     private VideoCompressionPreset _selectedPreset = null!;
     private bool _isPresetEditable = true;
+    private string _outputPath = string.Empty;
 
     public required string InputFilename { get; set; }
     public required string InputPath { get; set; }
     public string OutputFilename { get; set; } = string.Empty;
-    public string OutputPath { get; set; } = string.Empty;
+    public string OutputPath
+    {
+        get => _outputPath;
+        set
+        {
+            if (!SetProperty(ref _outputPath, value)) return;
+            OnPropertyChanged(nameof(CanOpenOutputFolder));
+            ((RelayCommand)OpenOutputFolderCommand).NotifyCanExecuteChanged();
+        }
+    }
 
     public ICommand OpenCommand { get; }
+    public ICommand OpenOutputFolderCommand { get; }
 
     public VideoCompressionJobViewModel()
     {
         OpenCommand = new RelayCommand(() =>
         {
+            if (string.IsNullOrWhiteSpace(InputPath)) return;
             try { Process.Start(new ProcessStartInfo(InputPath) { UseShellExecute = true }); }
             catch { /* ignore launch errors */ }
         });
+        OpenOutputFolderCommand = new RelayCommand(OpenOutputFolder, () => CanOpenOutputFolder);
     }
 
     /// <summary>Shared preset list — bound to the per-job ComboBox.</summary>
@@ -66,6 +80,8 @@ public class VideoCompressionJobViewModel : ViewModelBase
                 _                                     => string.Empty
             };
             OnPropertyChanged(nameof(IsProcessing));
+            OnPropertyChanged(nameof(CanOpenOutputFolder));
+            ((RelayCommand)OpenOutputFolderCommand).NotifyCanExecuteChanged();
         }
     }
 
@@ -98,6 +114,16 @@ public class VideoCompressionJobViewModel : ViewModelBase
     }
 
     public bool IsProcessing => Status == VideoCompressionJobStatus.Processing;
+    public bool CanOpenOutputFolder => Status == VideoCompressionJobStatus.Done && File.Exists(OutputPath);
+
+    private void OpenOutputFolder()
+    {
+        var directory = Path.GetDirectoryName(OutputPath);
+        if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory)) return;
+
+        try { Process.Start(new ProcessStartInfo(directory) { UseShellExecute = true }); }
+        catch { /* ignore launch errors */ }
+    }
 
     public string ReductionText
     {

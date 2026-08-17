@@ -95,7 +95,7 @@ public partial class SettingsViewModel : ViewModelBase
     {
         var path = await _dialogService.ShowFilePickerAsync(
             "Sélectionner ffmpeg",
-            new[] { "ffmpeg.exe", "ffmpeg" });
+            new[] { "*" });
         if (!string.IsNullOrEmpty(path))
             FfmpegPath = path;
     }
