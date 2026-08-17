@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -12,6 +13,7 @@ public partial class SettingsViewModel : ViewModelBase
     private readonly SettingsService _settingsService;
     private readonly IDialogService _dialogService;
     private readonly AppSettings _appSettings;
+    private readonly FfmpegDownloadService _ffmpegDownloadService;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsFfmpegConfigured))]
@@ -25,20 +27,61 @@ public partial class SettingsViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsVideoTabVisible))]
     private bool _isVideoCompressionEnabled;
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(DownloadFfmpegCommand))]
+    private bool _isDownloadingFfmpeg;
+
+    [ObservableProperty]
+    private double _ffmpegDownloadProgress;
+
+    [ObservableProperty]
+    private string _ffmpegDownloadStatus = string.Empty;
+
     public bool IsFfmpegConfigured =>
         !string.IsNullOrWhiteSpace(FfmpegPath) && File.Exists(FfmpegPath);
 
     public bool IsVideoTabVisible => IsVideoCompressionEnabled && IsFfmpegConfigured;
 
-    public SettingsViewModel(SettingsService settingsService, IDialogService dialogService)
+    public string DetectedPlatform => _ffmpegDownloadService.PlatformDescription;
+
+    public SettingsViewModel(
+        SettingsService settingsService,
+        IDialogService dialogService,
+        FfmpegDownloadService ffmpegDownloadService)
     {
         _settingsService = settingsService;
         _dialogService = dialogService;
         _appSettings = settingsService.Load();
+        _ffmpegDownloadService = ffmpegDownloadService;
         // Assign backing fields directly to avoid triggering Save() during init
         _ffmpegPath = _appSettings.FfmpegPath;
         _outputSubfolderName = _appSettings.OutputSubfolderName;
         _isVideoCompressionEnabled = _appSettings.IsVideoCompressionEnabled;
+    }
+
+    private bool CanDownloadFfmpeg() => !IsDownloadingFfmpeg;
+
+    [RelayCommand(CanExecute = nameof(CanDownloadFfmpeg))]
+    private async Task DownloadFfmpegAsync()
+    {
+        IsDownloadingFfmpeg = true;
+        FfmpegDownloadProgress = 0;
+        FfmpegDownloadStatus = $"Downloading ffmpeg for {DetectedPlatform}...";
+
+        try
+        {
+            var progress = new Progress<double>(value => FfmpegDownloadProgress = value * 100);
+            FfmpegPath = await _ffmpegDownloadService.DownloadAsync(progress);
+            FfmpegDownloadStatus = "ffmpeg downloaded and configured successfully.";
+        }
+        catch (Exception exception)
+        {
+            FfmpegDownloadStatus = $"Download failed: {exception.Message}";
+        }
+        finally
+        {
+            IsDownloadingFfmpeg = false;
+        }
     }
 
     partial void OnFfmpegPathChanged(string value) => PersistSettings();

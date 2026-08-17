@@ -54,7 +54,7 @@ public class MainWindowViewModel : ViewModelBase
         SelectedRenamerDateType = RenamerDateTypes[1];
 
         var settingsService = new SettingsService();
-        Settings = new SettingsViewModel(settingsService, dialogService);
+        Settings = new SettingsViewModel(settingsService, dialogService, new FfmpegDownloadService());
         VideoCompressor = new VideoCompressorViewModel(
             new VideoCompressorService(), dialogService, Settings);
     }

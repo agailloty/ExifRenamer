@@ -204,6 +204,20 @@
                                             Command="{Binding Settings.BrowseFfmpegCommand}" />
                                 </Grid>
 
+                                <StackPanel Spacing="6">
+                                    <Button HorizontalAlignment="Left"
+                                            Content="{Binding Settings.DetectedPlatform, StringFormat='Download ffmpeg for {0}'}"
+                                            Command="{Binding Settings.DownloadFfmpegCommand}" />
+                                    <ProgressBar Minimum="0" Maximum="100"
+                                                 Value="{Binding Settings.FfmpegDownloadProgress}"
+                                                 IsVisible="{Binding Settings.IsDownloadingFfmpeg}"
+                                                 Height="6" />
+                                    <TextBlock Text="{Binding Settings.FfmpegDownloadStatus}"
+                                               TextWrapping="Wrap" Opacity="0.7" />
+                                    <TextBlock Text="Downloads a platform-specific static build from the ffmpeg-static project. The existing path above remains available."
+                                               TextWrapping="Wrap" Opacity="0.6" FontStyle="Italic" />
+                                </StackPanel>
+
                                 <!-- Enable toggle -->
                                 <ToggleSwitch IsChecked="{Binding Settings.IsVideoCompressionEnabled, Mode=TwoWay}"
                                              IsEnabled="{Binding Settings.IsFfmpegConfigured}"
