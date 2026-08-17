@@ -56,7 +56,12 @@ jobs:
       - name: Create installer
         shell: pwsh
         run: |
-          makensis `
+          $makensis = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
+          if (-not (Test-Path -LiteralPath $makensis -PathType Leaf)) {
+            throw "NSIS compiler was not found at $makensis after installation."
+          }
+
+          & $makensis `
             "/DAPP_VERSION=${{ steps.version.outputs.version }}" `
             "/DPUBLISH_DIR=$((Resolve-Path 'publish/windows-x64').Path)" `
             "/DOUTPUT_FILE=$((Resolve-Path 'artifacts').Path)\ExifRenamer-windows-x64-Setup.exe" `
