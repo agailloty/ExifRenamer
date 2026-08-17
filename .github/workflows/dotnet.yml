@@ -2,93 +2,200 @@ name: Build and release
 
 on:
   push:
-    branches:
-      - master
-    tags:
-      - "v*"
+    branches: [master]
+    tags: ["v*"]
   pull_request:
-    branches:
-      - master
+    branches: [master]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  build:
-    name: Build ${{ matrix.artifact }}
+  windows:
+    name: Windows x64
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF -like 'refs/tags/v*') {
+            $version = $env:GITHUB_REF_NAME.Substring(1)
+            if ($version -notmatch '^\d+\.\d+\.\d+$') {
+              throw "Release tags must use vMAJOR.MINOR.PATCH (received $env:GITHUB_REF_NAME)."
+            }
+          } else {
+            $version = "0.0.$env:GITHUB_RUN_NUMBER"
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+      - name: Publish
+        shell: pwsh
+        run: |
+          dotnet publish ExifRenamer/ExifRenamer.csproj `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            --output publish/windows-x64 `
+            -p:Version=${{ steps.version.outputs.version }} `
+            -p:PublishTrimmed=true
+      - name: Create portable archive
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          Compress-Archive -Path publish/windows-x64/* -DestinationPath artifacts/ExifRenamer-windows-x64.zip
+      - name: Install NSIS
+        shell: pwsh
+        run: choco install nsis --no-progress -y
+      - name: Create installer
+        shell: pwsh
+        run: |
+          makensis `
+            "/DAPP_VERSION=${{ steps.version.outputs.version }}" `
+            "/DPUBLISH_DIR=$((Resolve-Path 'publish/windows-x64').Path)" `
+            "/DOUTPUT_FILE=$((Resolve-Path 'artifacts').Path)\ExifRenamer-windows-x64-Setup.exe" `
+            "/DREPOSITORY_ROOT=$((Resolve-Path '.').Path)" `
+            packaging/windows/ExifRenamer.nsi
+      - name: Upload Windows packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: exifrenamer-windows-x64
+          path: artifacts/ExifRenamer-windows-x64*
+          if-no-files-found: error
+          retention-days: 14
+
+  macos:
+    name: macOS ${{ matrix.architecture }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
-            runtime: linux-x64
-            artifact: exifrenamer-linux-x64
-            archive: exifrenamer-linux-x64.tar.gz
           - os: macos-15-intel
             runtime: osx-x64
-            artifact: exifrenamer-macos-x64
-            archive: exifrenamer-macos-x64.tar.gz
-          - os: windows-latest
-            runtime: win-x64
-            artifact: exifrenamer-windows-x64
-            archive: exifrenamer-windows-x64.zip
-
+            architecture: x64
+          - os: macos-15
+            runtime: osx-arm64
+            architecture: arm64
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
-
+      - name: Determine version
+        id: version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            version="${GITHUB_REF_NAME#v}"
+            if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Release tags must use vMAJOR.MINOR.PATCH (received $GITHUB_REF_NAME)." >&2
+              exit 1
+            fi
+          else
+            version="0.0.$GITHUB_RUN_NUMBER"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Publish
         run: >-
           dotnet publish ExifRenamer/ExifRenamer.csproj
           --configuration Release
           --runtime ${{ matrix.runtime }}
           --self-contained true
-          --output publish
+          --output publish/${{ matrix.runtime }}
+          -p:Version=${{ steps.version.outputs.version }}
           -p:PublishTrimmed=true
-
-      - name: Create tarball
-        if: runner.os != 'Windows'
-        run: tar -czf "${{ matrix.archive }}" -C publish .
-
-      - name: Create ZIP archive
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: Compress-Archive -Path publish/* -DestinationPath "${{ matrix.archive }}"
-
-      - name: Upload build artifact
+      - name: Create app bundle, ZIP and DMG
+        shell: bash
+        run: >-
+          bash packaging/macos/package.sh
+          publish/${{ matrix.runtime }}
+          artifacts
+          ${{ steps.version.outputs.version }}
+          ${{ matrix.architecture }}
+      - name: Upload macOS packages
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
-          path: ${{ matrix.archive }}
+          name: exifrenamer-macos-${{ matrix.architecture }}
+          path: artifacts/ExifRenamer-macos-${{ matrix.architecture }}.*
+          if-no-files-found: error
+          retention-days: 14
+
+  linux:
+    name: Linux x64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Determine version
+        id: version
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            version="${GITHUB_REF_NAME#v}"
+            if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Release tags must use vMAJOR.MINOR.PATCH (received $GITHUB_REF_NAME)." >&2
+              exit 1
+            fi
+          else
+            version="0.0.$GITHUB_RUN_NUMBER"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Publish
+        run: >-
+          dotnet publish ExifRenamer/ExifRenamer.csproj
+          --configuration Release
+          --runtime linux-x64
+          --self-contained true
+          --output publish/linux-x64
+          -p:Version=${{ steps.version.outputs.version }}
+          -p:PublishTrimmed=true
+      - name: Create DEB and portable archive
+        shell: bash
+        run: >-
+          bash packaging/linux/package-deb.sh
+          publish/linux-x64
+          artifacts
+          ${{ steps.version.outputs.version }}
+          amd64
+      - name: Inspect Debian package
+        run: dpkg-deb --info artifacts/ExifRenamer-linux-x64.deb
+      - name: Upload Linux packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: exifrenamer-linux-x64
+          path: artifacts/ExifRenamer-linux-x64.*
           if-no-files-found: error
           retention-days: 14
 
   release:
     name: Create GitHub Release
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: [windows, macos, linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           path: release-assets
           merge-multiple: true
-
       - name: Create checksums
         working-directory: release-assets
-        run: sha256sum exifrenamer-* > checksums-sha256.txt
-
+        run: sha256sum ExifRenamer-* > checksums-sha256.txt
       - name: Create release and attach assets
         env:
           GH_TOKEN: ${{ github.token }}

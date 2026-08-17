@@ -6,6 +6,12 @@
         <PublishAot>true</PublishAot>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>app.manifest</ApplicationManifest>
+        <ApplicationIcon>Assets\ExifRenamer.ico</ApplicationIcon>
+        <AssemblyName>ExifRenamer</AssemblyName>
+        <Product>ExifRenamer</Product>
+        <Authors>Axel-Cleris Gailloty</Authors>
+        <Company>7echnet</Company>
+        <Version Condition="'$(Version)' == ''">0.0.0</Version>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     </PropertyGroup>
 
