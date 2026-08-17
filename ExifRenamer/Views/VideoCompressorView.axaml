@@ -8,10 +8,22 @@
              x:DataType="vm:VideoCompressorViewModel"
              x:Class="ExifRenamer.Views.VideoCompressorView">
 
-    <Grid Margin="8" RowDefinitions="Auto,Auto,Auto,*,Auto">
+    <Grid Margin="18" RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" RowSpacing="14">
 
-        <Border Grid.Row="0" Classes="warningCard"
-                IsVisible="{Binding !IsFfmpegConfigured}" Margin="0 0 0 12">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="2 2 2 0">
+            <StackPanel Spacing="4">
+                <TextBlock Text="VIDEO STUDIO" Classes="sectionEyebrow" />
+                <TextBlock Text="Prepare your videos" FontSize="26" FontWeight="Bold" />
+                <TextBlock Text="Compress, convert, speed up or export a GIF from one streamlined workspace."
+                           FontSize="13" Opacity="0.66" TextWrapping="Wrap" />
+            </StackPanel>
+            <Border Grid.Column="1" Classes="videoBadge" VerticalAlignment="Center">
+                <TextBlock Text="FFmpeg powered" FontSize="12" FontWeight="SemiBold" />
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="1" Classes="warningCard"
+                IsVisible="{Binding !IsFfmpegConfigured}">
             <StackPanel>
                 <TextBlock Text="FFmpeg is required to compress videos" FontWeight="SemiBold" />
                 <TextBlock Text="Open Settings to select an existing executable or download the appropriate version for this computer."
@@ -20,14 +32,15 @@
         </Border>
 
         <!-- ── Row 0 : Folders + Options ───────────────────────────────── -->
-        <Grid Grid.Row="1" ColumnDefinitions="1*,2*" Margin="0 0 0 10">
+        <Grid Grid.Row="2" ColumnDefinitions="2*,3*" ColumnSpacing="14">
 
             <!-- Left column : source folders -->
-            <StackPanel Grid.Column="0" Margin="0 0 20 0">
-                <Label FontWeight="ExtraBold" FontSize="16" Margin="0 0 0 8"
-                       Content="Source folders" />
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 8" Opacity="0.7"
-                           Text="Supported: .mp4 .mov .avi .mkv .wmv .flv .m4v .webm" />
+            <Border Grid.Column="0" Classes="videoCard">
+            <StackPanel>
+                <TextBlock Text="01  SOURCES" Classes="sectionEyebrow" Margin="0 0 0 5" />
+                <TextBlock Text="Choose your files" FontWeight="Bold" FontSize="18" />
+                <TextBlock TextWrapping="Wrap" Margin="0 3 0 12" Opacity="0.62" FontSize="11"
+                           Text="MP4 · MOV · AVI · MKV · WMV · FLV · M4V · WEBM" />
                 <ScrollViewer MaxHeight="220" HorizontalScrollBarVisibility="Disabled">
                     <ListBox ItemsSource="{Binding Folders}">
                         <ListBox.ItemTemplate>
@@ -60,12 +73,15 @@
                 </Grid>
                 <CheckBox Content="Include subfolders"
                           IsChecked="{Binding IncludeSubfolders, Mode=TwoWay}"
-                          Margin="0 6 0 0" />
+                          Margin="0 10 0 0" />
             </StackPanel>
+            </Border>
 
             <!-- Right column : compression options -->
-            <StackPanel Grid.Column="1" Spacing="8">
-                <Label FontWeight="ExtraBold" FontSize="16" Content="Video workflow" />
+            <Border Grid.Column="1" Classes="videoCard">
+            <StackPanel Spacing="8">
+                <TextBlock Text="02  PROCESSING" Classes="sectionEyebrow" />
+                <TextBlock Text="Configure the output" FontWeight="Bold" FontSize="18" Margin="0 0 0 2" />
 
                 <TextBlock Text="Operation:" FontWeight="SemiBold" />
                 <ComboBox HorizontalAlignment="Stretch"
@@ -146,11 +162,12 @@
                                Text="(e.g. videoV.mp4)" />
                 </StackPanel>
             </StackPanel>
+            </Border>
         </Grid>
 
         <!-- ── Row 1 : Action bar ──────────────────────────────────────── -->
-        <Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,*,Auto"
-              Margin="0 0 0 8">
+        <Border Grid.Row="3" Classes="videoCard" Padding="14 12">
+        <Grid ColumnDefinitions="Auto,Auto,*,Auto">
             <Button Grid.Column="0" Content="{Binding ActionButtonText}" Classes="accent"
                     FontSize="14" FontWeight="SemiBold"
                     IsEnabled="{Binding CanStart}"
@@ -168,15 +185,16 @@
                 <TextBlock Text="files" />
             </StackPanel>
         </Grid>
+        </Border>
 
         <!-- ── Row 2 : Jobs list ───────────────────────────────────────── -->
-        <Border Grid.Row="3" Classes="card" Padding="4">
+        <Border Grid.Row="4" Classes="videoCard" Padding="8">
             <ScrollViewer HorizontalScrollBarVisibility="Disabled">
                 <ListBox Background="Transparent"
                          ItemsSource="{Binding Jobs}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:VideoCompressionJobViewModel">
-                            <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="2 3">
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" Margin="4 5">
 
                                 <!-- Play button -->
                                 <Button Grid.Column="0"
@@ -262,7 +280,7 @@
         </Border>
 
         <!-- ── Row 3 : Status bar ──────────────────────────────────────── -->
-        <TextBlock Grid.Row="4" Margin="0 6 0 0"
+        <TextBlock Grid.Row="5" Margin="4 0 0 0"
                    Text="{Binding StatusMessage}"
                    TextTrimming="CharacterEllipsis"
                    Opacity="0.75" />

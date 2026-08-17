@@ -36,4 +36,21 @@
         <Setter Property="Background" Value="{DynamicResource AccentFillColorDefaultBrush}" />
         <Setter Property="Foreground" Value="White" />
     </Style>
+    <Style Selector="Border.videoCard">
+        <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Padding" Value="20" />
+    </Style>
+    <Style Selector="TextBlock.sectionEyebrow">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+    </Style>
+    <Style Selector="Border.videoBadge">
+        <Setter Property="Background" Value="#187C3AED" />
+        <Setter Property="CornerRadius" Value="999" />
+        <Setter Property="Padding" Value="10 5" />
+    </Style>
 </Styles>

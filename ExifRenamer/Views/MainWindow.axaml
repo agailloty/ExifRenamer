@@ -40,9 +40,6 @@
                         <StackPanel Margin="36" Spacing="24" MaxWidth="900"
                                     HorizontalAlignment="Center">
                             <StackPanel Spacing="6" HorizontalAlignment="Center">
-                                <TextBlock Text="What would you like to work on?"
-                                           FontSize="30" FontWeight="Bold"
-                                           HorizontalAlignment="Center" />
                                 <TextBlock Text="Choose a workspace. You can switch at any time without losing your current selection."
                                            FontSize="14" Opacity="0.68" TextWrapping="Wrap"
                                            TextAlignment="Center" />

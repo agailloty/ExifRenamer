@@ -1,52 +1,101 @@
-name: Publish .NET Application
+name: Build and release
 
 on:
   push:
     branches:
       - master
+    tags:
+      - "v*"
   pull_request:
     branches:
       - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
+    name: Build ${{ matrix.artifact }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            runtime: linux-x64
+            artifact: exifrenamer-linux-x64
+            archive: exifrenamer-linux-x64.tar.gz
+          - os: macos-15-intel
+            runtime: osx-x64
+            artifact: exifrenamer-macos-x64
+            archive: exifrenamer-macos-x64.tar.gz
+          - os: windows-latest
+            runtime: win-x64
+            artifact: exifrenamer-windows-x64
+            archive: exifrenamer-windows-x64.zip
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.0.x
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
 
-    - name: Install dependencies
-      run: dotnet restore
+      - name: Publish
+        run: >-
+          dotnet publish ExifRenamer/ExifRenamer.csproj
+          --configuration Release
+          --runtime ${{ matrix.runtime }}
+          --self-contained true
+          --output publish
+          -p:PublishTrimmed=true
 
-    - name: Build
-      run: dotnet publish -c Release --self-contained -p:PublishTrimmed=true -o ./publish
+      - name: Create tarball
+        if: runner.os != 'Windows'
+        run: tar -czf "${{ matrix.archive }}" -C publish .
 
-    - name: Archive build (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      run: tar -czvf exifrenamer-ubuntu.tar.gz -C ./publish .
+      - name: Create ZIP archive
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path publish/* -DestinationPath "${{ matrix.archive }}"
 
-    - name: Archive build (macOS)
-      if: matrix.os == 'macos-latest'
-      run: tar -czvf exifrenamer-macos.tar.gz -C ./publish .
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.archive }}
+          if-no-files-found: error
+          retention-days: 14
 
-    - name: Archive build (Windows)
-      if: matrix.os == 'windows-latest'
-      run: Compress-Archive -Path ./publish/* -DestinationPath exifrenamer-windows.zip
+  release:
+    name: Create GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ matrix.os }}-build
-        path: |
-          exifrenamer-ubuntu.tar.gz
-          exifrenamer-macos.tar.gz
-          exifrenamer-windows.zip
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Create checksums
+        working-directory: release-assets
+        run: sha256sum exifrenamer-* > checksums-sha256.txt
+
+      - name: Create release and attach assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "${{ github.ref_name }}"
+          release-assets/*
+          --repo "${{ github.repository }}"
+          --verify-tag
+          --generate-notes
+          --title "ExifRenamer ${{ github.ref_name }}"
